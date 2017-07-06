@@ -1,0 +1,4 @@
+baseURL = "http://www.ariadne-cps.org/"
+languageCode = "en-us"
+title = "Ariadne"
+theme = "beautifulhugo"
