@@ -4,6 +4,6 @@ title = "Ariadne"
 theme = "beautifulhugo"
 
 [Params]
-  subtitle = "A C++ library for formal verification of cyber-physical systems, using reachability analysis on nonlinear hybrid automata"
+  subtitle = "A C++ library for formal verification of cyber-physical systems, using reachability analysis for nonlinear hybrid automata"
   logo = "img/ariadne.png"
   favicon = "img/ariadne.ico"
