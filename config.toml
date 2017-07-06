@@ -2,3 +2,7 @@ baseURL = "http://www.ariadne-cps.org/"
 languageCode = "en-us"
 title = "Ariadne"
 theme = "beautifulhugo"
+
+[Params]
+  subtitle = "A C++ library for formal verification of cyber-physical systems"
+  logo = "img/ariadne.png"
