@@ -20,14 +20,14 @@ p {
 }
 p a {
   /* text-decoration: underline */
-  color: #008AFF;
+  color: #FF7F2A;
 }
 h1,h2,h3,h4,h5,h6 {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 800;
 }
 a {
-  color: #008AFF;
+  color: #FF7F2A;
 }
 a:hover,
 a:focus {
@@ -395,14 +395,14 @@ footer .theme-by {
 }
 
 .blog-tags a {
-  color: #008AFF;
+  color: #FF7F2A;
   text-decoration: none;
   padding: 0px 5px;
 }
 
 .blog-tags a:hover {
   border-radius: 2px;
-  color: #008AFF;
+  color: #FF7F2A;
   background-color: #CCC;
 }
 

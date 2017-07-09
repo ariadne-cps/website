@@ -12,3 +12,8 @@ copyright = "Luca Geretti"
   logo = "img/ariadne.png"
   favicon = "img/ariadne.ico"
   rss = true
+
+[[menu.main]]
+    name = "Installation"
+    url = "installation"
+    weight = 1
