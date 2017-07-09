@@ -19,19 +19,20 @@ p {
   margin: 30px 0;
 }
 p a {
-  /* text-decoration: underline */
-  color: #FF7F2A;
+  text-decoration: none
+  color: #404040;
 }
 h1,h2,h3,h4,h5,h6 {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 800;
 }
 a {
-  color: #FF7F2A;
+  color: #404040;
 }
 a:hover,
 a:focus {
   color: #FF7F2A;
+  text-decoration: none
 }
 blockquote {
   color: #808080;
@@ -395,7 +396,7 @@ footer .theme-by {
 }
 
 .blog-tags a {
-  color: #FF7F2A;
+  color: #404040;
   text-decoration: none;
   padding: 0px 5px;
 }
