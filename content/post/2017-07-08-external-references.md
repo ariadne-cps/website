@@ -7,8 +7,8 @@ draft: false
 While the structure of the site is being built, let us recall here the external references for Ariadne.
 
 Code base and issue tracker:<br>
-**https://bitbucket.org/ariadne-cps**
+https://bitbucket.org/ariadne-cps
 
 ResearchGate project:<br>
-**https://www.researchgate.net/project/Ariadne-2**
+https://www.researchgate.net/project/Ariadne-2
 
