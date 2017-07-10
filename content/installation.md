@@ -8,7 +8,7 @@ These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12
 
 ### Preparing for the installation
 
-First let's download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to download the sources package, or preferably to *clone* it using the *git* version control software. 
+First let's download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to [download](https://bitbucket.org/ariadne-cps/release-1.0/downloads/) the repository as a package, or preferably to *clone* it using the *git* version control software. 
 
 In the latter case, you have to issue:
 
