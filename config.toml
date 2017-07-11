@@ -8,7 +8,7 @@ copyright = "Luca Geretti"
   name = "Luca Geretti"
 
 [Params]
-  bartitle = "Ariadne: A Library for Formal Verification of Cyber-Physical Systems"
+  bartitle = "Ariadne: A C++ Library for Formal Verification of Cyber-Physical Systems"
   subtitle = "A C++ library for formal verification of cyber-physical systems, using reachability analysis for nonlinear hybrid automata"
   logo = "img/ariadne.png"
   favicon = "img/ariadne.ico"
