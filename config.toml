@@ -16,4 +16,9 @@ copyright = "Luca Geretti"
 [[menu.main]]
     name = "Installation"
     url = "installation"
+    weight = 2
+
+[[menu.main]]
+    name = "About"
+    url = "about"
     weight = 1
