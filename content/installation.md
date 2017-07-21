@@ -6,29 +6,9 @@ draft: false
 
 These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12. 
 
-### Preparing for the installation
+### Downloading the distribution
 
-First let's download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to [download](https://bitbucket.org/ariadne-cps/release-1.0/downloads/) the repository as a package, or preferably to *clone* it using the *git* version control software. 
-
-In the latter case, you have to issue:
-
-    $ git clone https://bitbucket.org/ariadne-cps/release-1.0 ariadne
-
-where the last argument defines the name of the download folder.
-
-In the following the instructions to install git based on your platform: 
-
-#### Ubuntu
-
-Issue the command
-    
-    $ sudo apt-get install git
-
-to obtain the software.
-
-#### macOS
-
-The easiest way is to install the Command Line Developer Tools from the Apple Store. The tools are also required to obtain dependencies through the Brew package manager and to build the sources.
+First let's download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to *clone* the repository using the *git* version control software, or simply to [download](https://bitbucket.org/ariadne-cps/release-1.0/downloads/) the repository as a package.
 
 ### Installing the dependencies
 
@@ -41,7 +21,7 @@ Aptitude packages required: `cmake libboost-system-dev libboost-serialization-de
 
 #### macOS
 
-First, install Homebrew from http://brew.sh/.
+First, install Homebrew from http://brew.sh/. This operation will also ask to install the Command Line Developer Tools from the Apple Store. Such tools are also required to build the sources.
 
 The Homebrew packages required are: `cmake boost gtk cairo`, therefore issue
 
@@ -85,9 +65,9 @@ If you have correctly installed Doxygen and a Latex distribution and you want to
 
     $ make doc
 
-### Installing globally
+### Installing the library globally
 
-To install the library globally, you must do
+To install the library globally, you must issue
 
     $ make install
 
