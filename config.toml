@@ -15,9 +15,14 @@ copyright = "Luca Geretti"
   rss = true
 
 [[menu.main]]
+    name = "Publications"
+    url = "publications"
+    weight = 2
+
+[[menu.main]]
     name = "Installation"
     url = "installation"
-    weight = 2
+    weight = 3
 
 [[menu.main]]
     name = "About"
