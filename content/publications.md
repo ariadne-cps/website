@@ -6,7 +6,7 @@ draft: false
 
 Below we provide a selection of publications where the theoretical framework and the algorithmic implementation of Ariadne are explained. Additionally. we present some publications where either the relevant applications of the library are discussed, or where the library has been successfully applied to verify systems of industry relevance.
 
-The following papers are provided in descending order of publication. For each item, a link to the .pdf file (<i class="fa fa-file-pdf-o"></i>) and a link to the .bib file (<i class="fa fa-book"></i>) is available.
+The following papers are provided in descending order of publication and represent the latest developments on a given research direction. For each item, a link to the .pdf file (<i class="fa fa-file-pdf-o"></i>) and a link to the .bib file (<i class="fa fa-book"></i>) is available.
 
 ### Theory and implementation
 
