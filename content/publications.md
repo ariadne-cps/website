@@ -4,11 +4,11 @@ date: 2017-07-21T14:02:46+02:00
 draft: false
 ---
 
-This is a selection of relevant publications where the features of Ariadne are explained, along with some publications where the applications of the library are discussed.
+Below we provide a selection of publications where the theoretical framework and the algorithmic implementation of Ariadne are explained. Additionally. we present some publications where either the relevant applications of the library are discussed, or where the library has been successfully applied to verify systems of industry relevance.
 
-For each paper, a link to the .pdf file (<i class="fa fa-file-pdf-o"></i>) and one to the .bib file (<i class="fa fa-book"></i>) is available.
+The following papers are provided in descending order of publication. For each item, a link to the .pdf file (<i class="fa fa-file-pdf-o"></i>) and a link to the .bib file (<i class="fa fa-book"></i>) is available.
 
-### Features
+### Theory and implementation
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/geretti-ifac2017.pdf)
 [<i class="fa fa-book"></i>](/bib/geretti-ifac2017.bib)  
@@ -16,7 +16,7 @@ For each paper, a link to the .pdf file (<i class="fa fa-file-pdf-o"></i>) and o
 *Geretti, L.; Muradore, R.; Bresolin, D.; Fiorini, P.; Villa, T.;*    
 20th World Congress of the International Federation of Automatic Control (IFAC 2017), 9-14 July 2017, pg. 9658-9663
 
-### Applications
+### Usage of the library and applications 
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/nuzzo-ieeeproc2015.pdf)
 [<i class="fa fa-book"></i>](/bib/nuzzo-ieeeproc2015.bib)   
