@@ -40,9 +40,9 @@ No Buddy package is offered, hence you need to compile the library from https://
 
 Optionally, if you want to build the documentation, you need Doxygen and a working Latex distribution (including the Math packages).
 
-### Building the library
+### Building the distribution
 
-The build system is CMake. The compiler we tested the library under Ubuntu is g++, while for macOS is clang. To build the library in a clean way, it is preferable that you set up a build subdirectory from the root of the Ariadne directory:
+The build system used is CMake. The compiler we tested the library under Ubuntu is g++, while for macOS is clang. To build the distribution in a clean way, it is preferable that you set up a build subdirectory from the root of the Ariadne director. For example:
 
     $ mkdir build
     $ cd build
@@ -51,11 +51,19 @@ Then you can prepare the build environment:
 
     $ cmake ..
 
-At this point, if no error arises, you can build the library itself:
+At this point, if no error arises, you can build the distribution itself:
 
     $ make
+    
+In particular, if you need to build the library only, you can issue
 
-Optionally, you can also run the test suite for the library:
+    $ make ariadne
+    
+or if you want to build the tests along the library, do
+
+    $ make tests
+
+If the tests have been built, you can run the test suite for the library:
 
     $ make test
 
