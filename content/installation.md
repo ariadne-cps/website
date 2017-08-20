@@ -59,7 +59,7 @@ In particular, if you need to build the library only, you can issue
 
     $ make ariadne
     
-or if you want to build the tests along the library, do
+or if you want to build the tests along with the library, do
 
     $ make tests
 
