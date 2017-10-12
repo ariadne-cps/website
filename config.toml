@@ -28,3 +28,13 @@ copyright = "Luca Geretti"
     name = "About"
     url = "about"
     weight = 1
+
+[[menu.main]]
+    name = "Tutorial"
+    url = "tutorial"
+    weight = 4
+
+#[[menu.main]]
+#    name = "Docs"
+#    url = "docs"
+#    weight = 5
