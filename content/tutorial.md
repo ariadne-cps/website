@@ -60,3 +60,17 @@ Please note that a more realistic expression for the output flow would require $
 
 ## System model analysis
 
+### Evolution
+
+#### Finite time evolution
+
+#### Infinite time outer evolution
+
+#### Infinite time lower evolution
+
+### Verification
+
+#### Safety verification
+
+#### Parametric safety verification
+
