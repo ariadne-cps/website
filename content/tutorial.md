@@ -46,9 +46,9 @@ The model of the valve assumes that the valve opens or closes in a finite time $
 
 ![valve-model](/img/valvemodel.png "The valve model")
 
-Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronize* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton. Please note that an additional input transition is provided, in order to allow reaction to the *open* or *close* events when already in the desired location.
+Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronize* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.
 
-Invariants are set as complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
+Invariants in the *opening* and *closing* locations are set as the complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
 
 ## Controller model
 
