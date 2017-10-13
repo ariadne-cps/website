@@ -20,7 +20,7 @@ This tutorial has the purpose of providing detailed information for *users* of t
 
 Ariadne currently uses a programmatic C++ approach to describe a model and analyze it. The full code presented in the following is available [here](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
 
-## The system
+# The system
 
 ![watertank](/img/watertank.png "The watertank system")
 
@@ -30,7 +30,7 @@ The system described for this tutorial is a *watertank* system. This example fro
 
 For our system model, we identify three components: the [tank](#tank-model), the [valve](#valve-model) and the [controller](#controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
 
-### Tank model
+## Tank model
 
 The model of the tank is simple, since it involves only one location, hereby called *flow*, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi_o = -\alpha\, x $ and the input flow $\Phi_i = \beta\, a$.
 
@@ -40,37 +40,43 @@ Here we choose a fixed value $\alpha = 0.02$, which is a function of hydrodynami
 
 Please note that a more realistic expression for the output flow would require $\Phi_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.
 
-### Valve model
+## Valve model
+
+The model of the valve assumes that the valve opens or closes in a finite time $T = 4\, s$, with a linear opening or closing. Consequently we define two locations *opening* and *closing* in which the dynamics for the aperture $a$ is increasing or decreasing, respectively, with a rate equal to $\frac{1}{T}$. A third location *idle* instead models the valve being fully opened or fully closed, i.e., when $a$ is not allowed to vary.
 
 ![valve-model](/img/valvemodel.png "The valve model")
 
-### Controller model
+Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronize* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton. Please note that an additional input transition is provided, in order to allow reaction to the *open* or *close* events when already in the desired location.
+
+Invariants are set as complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
+
+## Controller model
 
 ![controller-model](/img/controllermodel.png "The controller model")
 
-## System model construction
+# System model construction
 
-### Tank
+## Tank
 
-### Valve
+## Valve
 
-### Controller
+## Controller
 
-### Composition
+## Composition
 
-## System model analysis
+# System model analysis
 
-### Evolution
+## Evolution
 
-#### Finite time evolution
+### Finite time evolution
 
-#### Infinite time outer evolution
+### Infinite time outer evolution
 
-#### Infinite time lower evolution
+### Infinite time lower evolution
 
-### Verification
+## Verification
 
-#### Safety verification
+### Safety verification
 
-#### Parametric safety verification
+### Parametric safety verification
 
