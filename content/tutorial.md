@@ -4,6 +4,14 @@ date: 2017-10-11T19:11:44+02:00
 draft: false
 ---
 
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 This tutorial has the purpose of providing detailed information for *users* of the library. It is split into three sections:
 
   1. [Description of a simple system](#the-system) that will be used for the tutorial;
