@@ -28,17 +28,17 @@ The system described for this tutorial is a *watertank* system. This example fro
 
 ![watertank-block](/img/watertank-block.png "The watertank system block diagram")
 
-For our system model, we identify three components: the [tank](#tank-model), the [valve](#valve-model) and the [controller](#controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
+For our system model, we identify three components: the [tank](#tank-model), the [valve](#valve-model) and the [controller](#controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x\_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
 
 ## Tank model
 
-The model of the tank is simple, since it involves only one location, hereby called *flow*, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi_o = -\alpha\, x $ and the input flow $\Phi_i = \beta\, a$.
+The model of the tank is simple, since it involves only one location, hereby called *flow*, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi\_o = -\alpha\, x $ and the input flow $\Phi\_i = \beta\, a$.
 
 ![tank-model](/img/tankmodel.png "The tank model")
 
 Here we choose a fixed value $\alpha = 0.02$, which is a function of hydrodynamic quantities including the outlet section area. On the other hand, we want to have $\beta \in [0.3,\, 0.32863]$, with the semantics that the input flow is a *fixed* value in that interval. The motivation behind the interval is that we want to study the behavior of the system for all the values in the interval, under the assumption that $\beta$ has a fixed but unknown value. Let us remark again that Ariadne does not currently support *differential inclusions*, which would allow $\beta$ to vary within the interval.
 
-Please note that a more realistic expression for the output flow would require $\Phi_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.
+Please note that a more realistic expression for the output flow would require $\Phi\_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.
 
 ## Valve model
 
@@ -52,7 +52,14 @@ Invariants in the *opening* and *closing* locations are set as the complements o
 
 ## Controller model
 
+As discussed previously, the valve is receptive to an *open* and *close* commands. The controller is responsible for issuing such commands. In particular, for simplicity we want to have an *hysteretic* control such that we provide an *open* command when the water level is too low, or a *close* command when the water level is too high.
+ 
 ![controller-model](/img/controllermodel.png "The controller model")
+
+Consequently, the automaton is characterized by two states: *rising*, when we are operating under the assumption that the water level is rising, and *falling*, then the assumption is the opposite one. 
+
+We define $h\_{\max} = 7.75$ meters and $h\_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h\_{\max}$ would trigger the *close* event, while a condition $x \leq h\_{\min}$ would trigger the *open* event. 
+However, in our model, we want to provide non-determinism by introducing *non-urgent* (or *permissive*) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the *open* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\min},\,h\_{\min}+\delta]$ interval. Similarly, the *close* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\max},\,h\_{\max}+\delta]$ interval.
 
 # System model construction
 
