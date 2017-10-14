@@ -63,7 +63,29 @@ However, in our model, we want to provide non-determinism by introducing *non-ur
 
 # System model construction
 
+In Ariadne, the construction of a C++ data structure that represents the described model is performed progressively: we start with an empty automaton and we proceed to "fill it" with locations and transitions.
+
+The formalism used internally by the library is that of Hybrid I/O Automata (see [this article](http://www.sciencedirect.com/science/article/pii/S0890540103000671) for reference). Essentially, in a hybrid I/O automaton variables and events have an I/O specification:
+
+  - *internal* if they are not visible outside the automaton;
+  - *output* if their dynamics are specified (variables) or they are fired (events) within the automaton;
+  - *input* if they are specified or fired from another automaton.
+
+The additional constraint given by the I/O character is not stricly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.
+
+The costruction of an automaton can be summarized in these steps:
+
+  1. An automaton object is created;
+  2. Variables and events are added with their I/O character;
+  3. Locations are added;
+  4. Dynamics and invariants are added, specifying the location;
+  5. Transitions are added, specifying the event, the source and target location, the guard and the reset.
+
+In the following we provide the specific implementation for each of the three components of the [tank](#tank), [valve](#valve) and [controller](#controller), followed by a brief discussion on the final [composition](#composition) of the automata.
+
 ## Tank
+
+
 
 ## Valve
 
