@@ -81,11 +81,67 @@ The costruction of an automaton can be summarized in these steps:
   4. Dynamics and invariants are added, specifying the location;
   5. Transitions are added, specifying the event, the source and target location, the guard and the reset.
 
-In the following we provide the specific implementation for each of the three components of the [tank](#tank), [valve](#valve) and [controller](#controller), followed by a brief discussion on the final [composition](#composition) of the automata.
+In the following we provide the specific implementation for each of the three components of the [tank](#tank), [valve](#valve) and [controller](#controller), followed by a brief discussion on the final [composition](#composition) of the automata. Please note that the details on each operation will not be repeated for all components.
 
 ## Tank
 
+First, it is necessary to include the top header of the library for user consumption:
 
+```c++
+#include "ariadne.h"
+```
+
+The automaton itself is constructed with the following instruction:
+
+```c++
+HybridIOAutomaton tank("tank");
+```
+where the argument string is useful for logging purposes. This is already a legal automaton, while still empty.
+
+Let us fill it with some behavior. First, we want to define the variables to use:
+
+```c++
+RealVariable a("a");
+RealVariable x("x");
+```
+
+Please note that, since variables are shared within the system, their definition may be provided only once for all components, at the top of the definition file. 
+
+Variables need to be added to the automaton, specifying their I/O character:
+
+```c++
+tank.add_input_var(a);
+tank.add_output_var(x);
+```
+
+Now we want to define the locations of the automaton:
+
+```c++
+DiscreteLocation flow("flow");
+```
+
+which is added to the automaton with
+
+```c++
+tank.new_mode(flow);
+```
+
+Now we can add dynamics for the location of the automaton. But first, let us define some parameters:
+
+```c++
+RealParameter alpha("alpha",0.02);
+RealParameter beta("beta",Interval(0.3,0.32863));
+```
+
+where we use the `Interval` class to define an interval instead of a singleton value.
+
+Then, we add the dynamics with
+
+```c++
+tank.set_dynamics(flow, x, - alpha * x + beta * a);
+```
+
+An expression in Ariadne allows any nonlinear combination of variables and parameters, along with the exp, log, sin, cos, tan and sqrt functions.
 
 ## Valve
 
