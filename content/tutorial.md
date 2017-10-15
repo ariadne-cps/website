@@ -14,13 +14,13 @@ MathJax.Hub.Config({
 
 This tutorial has the purpose of providing detailed information for *users* of the library. It is split into three sections:
 
-  1. [Description of a simple system](#the-system) that will be used for the tutorial;
-  2. [Construction of a model](#system-model-construction) for the system;
-  3. [Analysis of the model](#system-model-analysis), in terms of both evolution and verification.
+  1. [Description of a simple system](#1-the-system) that will be used for the tutorial;
+  2. [Construction of a model](#2-system-model-construction) for the system;
+  3. [Analysis of the model](#3-system-model-analysis), in terms of both evolution and verification.
 
 Ariadne currently uses a programmatic C++ approach to describe a model and analyze it. The full code presented in the following is available [here](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
 
-# The system
+# 1 - The system
 
 ![watertank](/img/watertank.png "The watertank system")
 
@@ -28,9 +28,9 @@ The system described for this tutorial is a *watertank* system. This example fro
 
 ![watertank-block](/img/watertank-block.png "The watertank system block diagram")
 
-For our system model, we identify three components: the [tank](#tank-model), the [valve](#valve-model) and the [controller](#controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x\_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
+For our system model, we identify three components: the [tank](#1-1-tank-model), the [valve](#1-2-valve-model) and the [controller](#1-3-controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x\_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
 
-## Tank model
+## 1.1 - Tank model
 
 The model of the tank is simple, since it involves only one location, hereby called *flow*, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi\_o = -\alpha\, x $ and the input flow $\Phi\_i = \beta\, a$.
 
@@ -40,7 +40,7 @@ Here we choose a fixed value $\alpha = 0.02$, which is a function of hydrodynami
 
 Please note that a more realistic expression for the output flow would require $\Phi\_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.
 
-## Valve model
+## 1.2 - Valve model
 
 The model of the valve assumes that the valve opens or closes in a finite time $T = 4\, s$, with a linear opening or closing. Consequently we define two locations *opening* and *closing* in which the dynamics for the aperture $a$ is increasing or decreasing, respectively, with a rate equal to $\frac{1}{T}$. A third location *idle* instead models the valve being fully opened or fully closed, i.e., when $a$ is not allowed to vary.
 
@@ -50,7 +50,7 @@ Transitions between locations in this automaton are either *internal* or *extern
 
 Invariants in the *opening* and *closing* locations are set as the complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
 
-## Controller model
+## 1.3 - Controller model
 
 As discussed previously, the valve is receptive to an *open* and *close* commands. The controller is responsible for issuing such commands. In particular, for simplicity we want to have an *hysteretic* control such that we provide an *open* command when the water level is too low, or a *close* command when the water level is too high.
  
@@ -61,7 +61,7 @@ Consequently, the automaton is characterized by two states: *rising*, when we ar
 We define $h\_{\max} = 7.75$ meters and $h\_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h\_{\max}$ would trigger the *close* event, while a condition $x \leq h\_{\min}$ would trigger the *open* event. 
 However, in our model, we want to provide non-determinism by introducing *non-urgent* (or *permissive*) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the *open* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\min},\,h\_{\min}+\delta]$ interval. Similarly, the *close* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\max},\,h\_{\max}+\delta]$ interval.
 
-# System model construction
+# 2 - System model construction
 
 In Ariadne, the construction of a C++ data structure that represents the described model is performed progressively: we start with an empty automaton and we proceed to "fill it" with locations and transitions.
 
@@ -81,9 +81,9 @@ The costruction of an automaton can be summarized in these steps:
   4. Dynamics and invariants are added, specifying the location;
   5. Transitions are added, specifying the event, the source and target location, the guard and the reset.
 
-In the following we provide the specific implementation for each of the three components of the [tank](#tank), [valve](#valve) and [controller](#controller), followed by a brief discussion on the final [composition](#composition) of the automata. Please note that the details on each operation will not be repeated for all components.
+In the following we provide the specific implementation for each of the three components of the [tank](#2-1-tank), [valve](#2-2-valve) and [controller](#2-3-controller), followed by a brief discussion on the final [composition](#2-4-composition) of the automata. Please note that the details on each operation will not be repeated for all components.
 
-## Tank
+## 2.1 - Tank
 
 First, it is necessary to include the top header of the library for user consumption:
 
@@ -114,7 +114,7 @@ tank.add_input_var(a);
 tank.add_output_var(x);
 ```
 
-Now we want to define the locations of the automaton:
+Now we want to define the location of the automaton:
 
 ```c++
 DiscreteLocation flow("flow");
@@ -126,7 +126,7 @@ which is added to the automaton with
 tank.new_mode(flow);
 ```
 
-Now we can add dynamics for the location of the automaton. But first, let us define some parameters:
+Now we can add dynamics for the location in respect to the automaton. But first, let us define some parameters:
 
 ```c++
 RealParameter alpha("alpha",0.02);
@@ -143,25 +143,25 @@ tank.set_dynamics(flow, x, - alpha * x + beta * a);
 
 An expression in Ariadne allows any nonlinear combination of variables and parameters, along with the exp, log, sin, cos, tan and sqrt functions.
 
-## Valve
+## 2.2 - Valve
 
-## Controller
+## 2.3 - Controller
 
-## Composition
+## 2.4 - Composition
 
-# System model analysis
+# 3 - System model analysis
 
-## Evolution
+## 3.1 - Evolution
 
-### Finite time evolution
+### 3.1.1 - Finite time evolution
 
-### Infinite time outer evolution
+### 3.1.2 - Infinite time outer evolution
 
-### Infinite time lower evolution
+### 3.1.3 - Infinite time lower evolution
 
-## Verification
+## 3.2 - Verification
 
-### Safety verification
+### 3.2.1 - Safety verification
 
-### Parametric safety verification
+### 3.2.2 - Parametric safety verification
 
