@@ -245,6 +245,78 @@ In this case, the transition is defined as *forced*, i.e., urgent. Using this sp
 
 ## 2.3 - Controller
 
+The construction of the controller for the system start with the usual
+
+```
+HybridIOAutomaton controller("controller");
+```
+after which we can add the involved variables and events: 
+
+```
+controller.add_input_var(x);
+
+controller.add_output_event(e_open);
+controller.add_output_event(e_close);
+```
+
+Therefore, in opposition to the valve automaton, the controller "reads" a variable and "writes" events.
+
+The two locations are created and added in the usual way:
+
+```
+DiscreteLocation rising("rising");
+DiscreteLocation falling("falling");
+
+controller.new_mode(rising);
+controller.new_mode(falling);
+```
+
+Since no internal or output variable is present, we do not need to define any dynamics for this automaton.
+
+Moving to transitions, we want to provide two non-urgent transitions, hence we need to define proper guards and invariants. Let's start with defining some parameters:
+
+```
+RealParameter hmin("hmin",5.75);
+RealParameter hmax("hmax",7.75);
+RealParameter delta("delta",0.1);
+```
+which represent the lower threshold for the water level $h\_{\min}$, the corresponding upper threshold $h\_{\max}$, and the "radius" of non-determinism $\delta$.
+
+Let's define the invariant expressions for the locations:
+
+```
+RealExpression x_leq_hmax = x - hmax - delta;
+RealExpression x_geq_hmin = hmin - delta - x;
+```
+where Ariadne works under the assumption that an invariant expression $i$ allows evolution as long as $i \leq 0$; consequently, invariant expressions are complementary in respect to guards, where $g \geq 0$ must hold in order to allow leaving the location. In particular, the two expressions above correspond to $x \leq h\_{\max} + \delta$ and $x \geq h\_{\min} - \delta$, respectively.
+
+In order to add the invariants, we issue:
+
+```
+controller.new_invariant(rising, x_leq_hmax);
+controller.new_invariant(falling, x_geq_hmin);
+```
+
+It must be noted that, while only one guard per transition is allowed, we support multiple invariants per location.
+
+Guards are provided in the usual way:
+
+```
+RealExpression x_geq_hmax = x - hmax + delta;
+RealExpression x_leq_hmin = hmin + delta - x;
+```
+which correspond to $x \geq h\_{\max} - \delta$ and $x \leq h\_{\min} + \delta$, respectively.
+
+The transitions then become:
+
+```
+controller.new_unforced_transition(e_close, rising, falling, x_geq_hmax);
+controller.new_unforced_transition(e_open, falling, rising, x_leq_hmin);		
+```
+where we clearly need to specify that the transition is *unforced*. In this case, the transition *can* be fired for any point of the intersection between the invariant set and the guard set. If we used a forced transition instead, the transition would be fired only in the intersection between the invariant set and the boundary of the guard set. 
+
+Finally, we note how we necessarily omit the reset when no internal or output variable is present.
+
 ## 2.4 - Composition
 
 # 3 - System model analysis
