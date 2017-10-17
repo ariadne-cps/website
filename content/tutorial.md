@@ -313,11 +313,34 @@ The transitions then become:
 controller.new_unforced_transition(e_close, rising, falling, x_geq_hmax);
 controller.new_unforced_transition(e_open, falling, rising, x_leq_hmin);		
 ```
-where we clearly need to specify that the transition is *unforced*. In this case, the transition *can* be fired for any point of the intersection between the invariant set and the guard set. If we used a forced transition instead, the transition would be fired only in the intersection between the invariant set and the boundary of the guard set. 
+where we clearly need to specify that the transition is *unforced*. In this case, the transition *can* be fired for any point $x$ such that $i(x) \leq 0$ and $g(x) \geq 0$, i.e., for the intersection between the *invariant set* and the *guard set*. If we used a forced transition instead, the transition would be fired only in the intersection between the invariant set and the boundary of the guard set. 
 
 Finally, we note how we necessarily omit the reset when no internal or output variable is present.
 
 ## 2.4 - Composition
+
+The Ariadne library currently supports only *horizontal* composition, meaning that two or more automata at the same level of abstraction can be composed to form a more complex automaton. Ariadne does not support vertical modularity in terms of different levels of abstraction and encapsulation. Consequently, we assume that all the automata are represented on a common "horizontal namespace" where all variable and event labels are shared.
+
+Composition is performed between a pair of automata and returns a new automaton which is the product of the original components. When multiple automata must be composed, a progressive sequence of compositions is issued until the product of all the components is performed. Since composition is commutative, the product order is irrelevant.
+
+In order to create the composed automaton of the tank and the valve:
+
+```
+HybridIOAutomaton tank_valve = compose("tank,valve",tank,valve,flow,idle);
+```
+
+The first argument is the name of the new automaton. The second and third arguments are the components to use, while the fourth and fifth arguments represent the initial locations for each component. Specifying an initial location is required if we want to optimize the resulting system, by creating a product with the actual reachable locations: the choice of the initial location may influence the discrete reachability and consequently the complexity of the system.
+
+The complete system is obtained with:
+
+```
+HybridIOAutomaton system = compose("tutorial",tank_valve,controller,
+                                   DiscreteLocation("flow,idle"),rising);
+```
+
+Here the `tutorial` name actually overwrites the previous `tank,valve` name, meaning that choosing a specific name for an intermediate automaton is inconsequential.
+
+An important remark on the construction of the initial location for the `tank,valve` component: the product between components implies that location names are combined, meaning that the order of components in the composition is relevant. However, please note that potential errors in the composition due to improper location naming are caught by the library during composition itself.
 
 # 3 - System model analysis
 
