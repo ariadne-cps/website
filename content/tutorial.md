@@ -105,7 +105,7 @@ RealVariable a("a");
 RealVariable x("x");
 ```
 
-Please note that, since variables are shared within the system, their definition may be provided only once for all components, at the top of the definition file. 
+Please note that, since variables are shared within the system, their definition may be provided only once for all components, at the top of the definition file. Still, sharing is performed based on the string label, not on the C++ variable name. Consequently, there may exist multiple variable objects with different names but same label.
 
 Variables need to be added to the automaton, specifying their I/O character:
 
@@ -141,9 +141,107 @@ Then, we add the dynamics with
 tank.set_dynamics(flow, x, - alpha * x + beta * a);
 ```
 
-An expression in Ariadne allows any nonlinear combination of variables and parameters, along with the exp, log, sin, cos, tan and sqrt functions.
+An expression in Ariadne allows any nonlinear combination of variables, constants and parameters, along with the exp, log, sin, cos, tan and sqrt functions.
 
 ## 2.2 - Valve
+
+We start construction of the valve automaton with
+
+```
+HybridIOAutomaton valve("valve");
+```
+
+and add the only involved variable:
+
+```
+valve.add_output_var(a);
+```
+
+The three locations are then introduced and added using:
+
+```
+DiscreteLocation idle("idle");
+DiscreteLocation opening("opening");
+DiscreteLocation closing("closing");
+
+valve.new_mode(idle);
+valve.new_mode(opening);
+valve.new_mode(closing);
+```
+
+Before adding the corresponding dynamics, we set the parameter $T$:
+
+```
+RealParameter T("T",4.0);
+```
+
+after which we define:
+
+```
+valve.set_dynamics(idle, a, 0.0);
+valve.set_dynamics(opening, a, 1.0/T);
+valve.set_dynamics(closing, a, -1.0/T);
+```
+
+Now we move to events, by starting from the introduction of the labels:
+
+```
+DiscreteEvent e_open("open");
+DiscreteEvent e_close("close");
+DiscreteEvent e_idle("idle");
+```
+
+We remind here that events, like variables, are shared between automata using their string labels, not their C++ variable names. 
+
+To add the events to the automaton, we need to provide the I/O character:
+
+```
+valve.add_input_event(e_open);
+valve.add_input_event(e_close);
+valve.add_internal_event(e_idle);
+```
+
+While the *open* and *close* events must necessarily be specified as input, since they are not issued by the valve automaton, the *idle* event may be internal or output equivalently. Choosing an internal event is preferable for incapsulation purposes, when we do not need an event to be read by other components.
+
+For transitions, let's start with the simplest case: transitions without a guard or a reset. Such case arises from the presence of an input event, where the guard and reset for the transition are set by the automaton that fires the event itself.
+
+The syntax required becomes:
+
+```
+valve.new_unforced_transition(e_open, idle, opening);
+valve.new_unforced_transition(e_close, idle, closing);
+```
+
+For such situation, we always consider the transition as *unforced* (i.e., non-urgent) for generality, in order to allow non-determinism depending on the actual guards and invariants. The first argument is the (input) event, the second is the *source* location and the third is the *target* location. In the case of self-loops, the target location can be equal to the source location.
+
+Let us now consider the case of internal/output transitions. First, we need to set the guards for the transitions:
+
+```
+RealExpression a_geq_one = a - 1.0;
+RealExpression a_leq_zero = - a;
+```
+
+Here we provide `RealExpression` variables for clarity, instead of directly using the expressions inline within the corresponding transitions. A guard expression $g$ is defined under a $g \geq 0$ assumption. Consequently, it may be necessary to rearrange terms to comply to the required convention. In our case, the two lines correspond to defining the guard expressions $a \geq 1$ and $a \leq 0$ respectively.
+
+To provide a reset, we need to define a variable-expression map instead:
+
+```
+std::map<RealVariable,RealExpression> rst_a_one;
+rst_a_one[a] = 1.0;
+std::map<RealVariable,RealExpression> rst_a_zero;
+rst_a_zero[a] = 0.0;
+```
+
+We are providing two separate reset maps, applying to the only variable $a$. If there are multiple variables and one of them is reset, then for safe specification a reset for each variable is required: in that case, an identity expression such as `rst[x] = x;` can be used.
+
+Now we can finally provide the transitions themselves:
+
+```
+valve.new_forced_transition(e_idle, opening, idle, rst_a_one, a_geq_one);
+valve.new_forced_transition(e_idle, closing, idle, rst_a_zero, a_leq_zero);
+```
+
+In this case, the transition is defined as *forced*, i.e., urgent. Using this specification, we are not required to provide invariants for the automaton: the invariant in a location is implicitly set as the complement of the union of the guard sets of outgoing transitions.
 
 ## 2.3 - Controller
 
