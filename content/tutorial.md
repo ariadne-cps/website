@@ -71,7 +71,7 @@ The formalism used internally by the library is that of Hybrid I/O Automata (see
   - *output* if their dynamics are specified (variables) or they are fired (events) within the automaton;
   - *input* if they are specified or fired from another automaton.
 
-The additional constraint given by the I/O character is not stricly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.
+The additional constraint given by the I/O character is not strictly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.
 
 The costruction of an automaton can be summarized in these steps:
 
@@ -83,15 +83,11 @@ The costruction of an automaton can be summarized in these steps:
 
 In the following we provide the specific implementation for each of the three components of the [tank](#2-1-tank), [valve](#2-2-valve) and [controller](#2-3-controller), followed by a brief discussion on the final [composition](#2-4-composition) of the automata. Please note that the details on each operation will not be repeated for all components.
 
+All the code discussed here can be found in the [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master) file of the repository.
+
 ## 2.1 - Tank
 
-First, it is necessary to include the top header of the library for user consumption:
-
-```c++
-#include "ariadne.h"
-```
-
-The automaton itself is constructed with the following instruction:
+The automaton can be constructed with the following instruction:
 
 ```c++
 HybridIOAutomaton tank("tank");
@@ -193,7 +189,7 @@ DiscreteEvent e_idle("idle");
 
 We remind here that events, like variables, are shared between automata using their string labels, not their C++ variable names. 
 
-To add the events to the automaton, we need to provide the I/O character:
+To add the events to the automaton, we need to provide their I/O character:
 
 ```
 valve.add_input_event(e_open);
@@ -338,11 +334,65 @@ HybridIOAutomaton system = compose("tutorial",tank_valve,controller,
                                    DiscreteLocation("flow,idle"),rising);
 ```
 
-Here the `tutorial` name actually overwrites the previous `tank,valve` name, meaning that choosing a specific name for an intermediate automaton is inconsequential.
+Here the `tutorial` name ends up overwriting the previous `tank,valve` name, meaning that choosing a specific name for an intermediate automaton is inconsequential.
 
 An important remark on the construction of the initial location for the `tank,valve` component: the product between components implies that location names are combined, meaning that the order of components in the composition is relevant. However, please note that potential errors in the composition due to improper location naming are caught by the library during composition itself.
 
 # 3 - System model analysis
+
+In order to analyze a system in Ariadne, we must prepare an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
+
+In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master). In addition, the analysis routines are kept in a dedicated [analysis.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/analysis.h?at=master) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
+
+But first of all let us examine the [tutorial.cc](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/tutorial.cc?at=master) executable. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
+
+```c++
+#include <ariadne.h>
+```
+
+followed by adding the system and analysis headers:
+
+```c++
+#include "system.h"
+#include "analysis.h"
+```
+
+The content of the `main` function of the executable revolves around the collection of four items:
+
+  1. The system to analyze;
+  2. The initial set to use;
+  3. The verbosity for runtime info;
+  4. The flag for plotting graphical results.
+
+The system object is loaded with
+
+```c++
+HybridIOAutomaton system = Ariadne::getSystem();
+```
+
+using a custom function created in the system header. If we want to output the textual description of the system, we can issue:
+
+```c++
+cout << system << endl;
+```
+
+which provides a compact representation useful for debugging purposes. No graph-based output capabilities are currently available in the library.
+
+The initial set can be provided in different formats. For this tutorial we want to use a generic representation, i.e., a `HybridBoundedConstraintSet`. Such structure allows to specify a set for each location, thus allowing multiple initial sets. Namely:
+
+```c++
+HybridBoundedConstraintSet initial_set(system.state_space());
+initial_set[DiscreteLocation("flow,idle,rising")] = 
+            Box(2, 1.0,1.0, 6.0,7.5);
+initial_set[DiscreteLocation("flow,idle,falling")] = 
+            Box(2, 0.0,0.0, 6.0,7.5);
+```
+
+Here the first line constructs the set as empty, in the hybrid state space of the system. Then, we add sets for two specific locations. Specifically, we construct a `BoundedConstraintSet` from a simple `Box`, which is a coordinate-aligned set. In particular, the first argument of the constructor is the set dimension, while the remaining arguments are the lower and upper bounds for each variable, in alphabetical order. In other words, the continuous set is $\\{a = 1 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,rising* location and $\\{a = 0 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,falling* location.
+
+The verbosity is a non-negative value that allows to show textual runtime information down to a given depth: the higher the value, the lower the depth. In particular, the current depth is prefix to each textual line. Since only a global verbosity variable exists, it is currently not possible to display information exclusive to a specific depth.
+
+Finally, we comment on the ability to turn on or off the graphical output. Graphics are enabled for this tutorial, but for efficiency purposes it is possible to avoid the production of figures; indeed, they are disabled by default in the library. In general, figures are created as .png files under a folder called `<systemname>-png` from the current working directory. Inside, each analysis produces a specific directory with a timestamp, in order to simplify the identification of the results of multiple runs.
 
 ## 3.1 - Evolution
 
@@ -357,4 +407,3 @@ An important remark on the construction of the initial location for the `tank,va
 ### 3.2.1 - Safety verification
 
 ### 3.2.2 - Parametric safety verification
-
