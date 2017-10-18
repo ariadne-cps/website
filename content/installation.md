@@ -79,6 +79,8 @@ To install the library globally, you must issue
 
     $ make install
 
+Depending on your machine, it may be necessary to use `sudo make install` instead, if you do not have privileges for writing into the corresponding include/ and lib/ directories.
+
 To find the installed library under Ubuntu, you may need to set the `LD_LIBRARY_PATH` variable in the .bashrc file:
 
     export LD_LIBRARY_PATH=/usr/local/lib
