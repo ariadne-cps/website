@@ -14,7 +14,7 @@ The following papers are provided in descending order of publication and represe
 [<i class="fa fa-book"></i>](/bib/geretti-ifac2017.bib)  
 **Parametric formal verification: the robotic paint spraying case study**  
 *Geretti, L.; Muradore, R.; Bresolin, D.; Fiorini, P.; Villa, T.;*    
-20th World Congress of the International Federation of Automatic Control (IFAC 2017), 9-14 July 2017, pg. 9658-9663
+20th World Congress of the International Federation of Automatic Control (IFAC 2017), 9-14 July 2017, pg. 9248-9253, DOI: 10.1016/j.ifacol.2017.08.1287
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/benvenuti-ijrnc2014.pdf)
 [<i class="fa fa-book"></i>](/bib/benvenuti-ijrnc2014.bib)  
