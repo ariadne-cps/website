@@ -390,13 +390,138 @@ initial_set[DiscreteLocation("flow,idle,falling")] =
 
 Here the first line constructs the set as empty, in the hybrid state space of the system. Then, we add sets for two specific locations. Specifically, we construct a `BoundedConstraintSet` from a simple `Box`, which is a coordinate-aligned set. In particular, the first argument of the constructor is the set dimension, while the remaining arguments are the lower and upper bounds for each variable, in alphabetical order. In other words, the continuous set is $\\{a = 1 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,rising* location and $\\{a = 0 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,falling* location.
 
-The verbosity is a non-negative value that allows to show textual runtime information down to a given depth: the higher the value, the lower the depth. In particular, the current depth is prefix to each textual line. Since only a global verbosity variable exists, it is currently not possible to display information exclusive to a specific depth.
+The verbosity is a non-negative value that allows to show textual runtime information down to a given depth: the higher the value, the lower the depth. In particular, the current depth is prefix to each textual line. Since only a global verbosity variable exists, it is currently not possible to display information exclusively at a specific depth.
 
-Finally, we comment on the ability to turn on or off the graphical output. Graphics are enabled for this tutorial, but for efficiency purposes it is possible to avoid the production of figures; indeed, they are disabled by default in the library. In general, figures are created as .png files under a folder called `<systemname>-png` from the current working directory. Inside, each analysis produces a specific directory with a timestamp, in order to simplify the identification of the results of multiple runs.
+Finally, we comment on the ability to turn on or off the graphical output. Graphics are enabled for this tutorial, but for efficiency purposes it is possible to avoid the production of figures; indeed, they are disabled by default in the library. In general, figures are created as .png files under a directory called `<systemname>-png` (`tutorial-png` in this case) from the current working directory. Inside, each analysis produces a specific directory with a timestamp, in order to simplify the identification of the results of multiple runs.
 
 ## 3.1 - Evolution
 
+For the routines in this subsection, we are simply interested in computing the reachable set, either for finite time or infinite time evolution.
+
 ### 3.1.1 - Finite time evolution
+
+The first step is the creation of a `HybridEvolver` object, which provides methods for finite time evolution:
+
+```c++
+HybridEvolver evolver(system);
+```
+
+where the `system` argument is the automaton to evolve. The system is stored before evolution in order to check the consistency of user-provided evolution *settings*. Such settings can be found in the `ImageSetHybridEvolverSettings` class in [hybrid_evolver-image.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/hybrid_evolver-image.h?at=master). For each setting, a default value is provided; also, multiple setter methods are available when useful for a simpler assignment.
+
+The only mandatory setting in practice is the integration step size, which is set in this tutorial with:
+
+```c++
+evolver.settings().set_maximum_step_size(0.3);
+```
+
+Here the setting is called a *maximum* step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally halves the provided value until the value is acceptable. However, if the step size is reasonably small in respect to the dynamics, it is usually the case that a bounding box is identified with no halving.
+
+Another relevant setting is the `reference_enclosure_widths` which informs the evolver about a particular width value on each dimension of the continuous space; such width should be chosen as proportional to the precision required on the given dimension when discretizing the reachable set. Here an "enclosure" is a name for an evolution set at a given time, which can also be seen as a section of the flow tube. The reference widths are meant to be constant for a given system. The `maximum_enclosure_widths_ratio` setting is then multiplied with the reference widths to decide if an enclosure is too large in respect to a desired numerical accuracy. If `enable_premature_termination_on_enclosure_size` is enabled (enabled by default), then evolution is stopped: this is useful to terminate when the set becomes too large to provide meaningful data for analysis. If `enable_subdivisions` is enabled (disabled by default), evolution continues but the set is split into two enclosures of smaller size.
+
+The assignment of the verbosity is performed with
+
+```
+evolver.verbosity = verbosity;
+```
+
+where the default verbosity value is zero, i.e., no output is provided.
+
+As soon as the evolver is set up, we can perform finite-time evolution by computing the *orbit* of the automaton. To call the `HybridEvolver::orbit` method we need three arguments:
+
+  1. The initial set expressed as a *localized* enclosure;
+  2. The evolution limits in terms of maximum continuous time and maximum number of discrete transitions;
+  3. The *semantics* for evolution.
+
+The initial set must be expressed as a localized enclosure, meaning a set paired with a discrete location. If we want to perform evolution for an initial set on two locations, like the one of the tutorial, we actually need to compute two separate orbits. In addition, the initial set that we provided is a hybrid constraint set. For these reasons, we provide the following code snippet for conversion:
+
+```c++
+HybridEvolver::EnclosureListType initial_enclosures;
+HybridBoxes initial_set_domain = initial_set.domain();
+for (HybridBoxes::const_iterator it = 
+  initial_set_domain.locations_begin(); 
+  it != initial_set_domain.locations_end(); 
+  ++it) {
+    if (!it->second.empty()) {
+      initial_enclosures.adjoin(HybridEvolver::EnclosureType(
+        it->first,Box(it->second.centre())));
+    }
+}
+```
+
+We remind here that code such as the above is not required when the initial set is already expressed as a `HybridEvolver::EnclosureType` instead.
+
+The evolution time is provided as a `HybridTime`, which is a pairing of a continuous time and a discrete time:
+
+```c++
+HybridTime evol_limits(30.0,8);
+```
+
+Here we say that hybrid evolution may progress until 30 seconds of evolution are reached, or until 8 events are fired, whichever condition is met first.
+
+Finally, the semantics in Ariadne is either `UPPER_SEMANTICS` or `LOWER_SEMANTICS`. Such difference essentially amounts to deciding whether a transition should be taken in the presence of approximations. Since Ariadne operates on over-approximated sets, if such a set partially crosses a guard, then it is not always decidable whether the exact set either completely crosses, partially crosses or does not cross at all. If that is the case, we want to provide two semantics of evolution: allow or disallow a spurious transition. In the first case of *upper semantics* we end up with an approximate reachable set which is a (possibly) unbounded over-approximation of the exact reachable set; in the second case of *lower semantics* instead we have a bounded over-approximation, where the bound is essentially the diameter of the flow tube. However, under lower semantics we may terminate evolution earlier, hence the over-approximation may be of a subset of the reachable set. In addition, lower semantics disallows subdivisions of a set, since in that case one of the two splits may not contain any point of the exact reachable set; if such split set then diverges in respect to the other split set, the bound on the over-approximation increases in an uncontrolled way.
+
+Let's call the orbit method for each of the enclosures and each of the semantics, adjoining the reach sets of a given semantics to a common `HybridEvolver::EnclosureListType` data structure:
+
+```c++
+HybridEvolver::EnclosureListType upper_reach, lower_reach;
+for (HybridEvolver::EnclosureListType::const_iterator it = 
+  initial_enclosures.begin();
+  it != initial_enclosures.end(); 
+  ++it) {
+    HybridEvolver::OrbitType upper_orbit = evolver.orbit(*it, evol_limits, 
+                    UPPER_SEMANTICS);
+    upper_reach.adjoin(upper_orbit.reach());
+    HybridEvolver::OrbitType lower_orbit = evolver.orbit(*it, evol_limits, 
+                    LOWER_SEMANTICS);
+    lower_reach.adjoin(lower_orbit.reach());
+}
+```
+
+If we choose a verbosity value of 1, then for each call to `orbit` we see a long sequence of log lines, where each line provides information on one continuous step of evolution, e.g.:
+
+```
+[e:1] #w=6 #r=210 s=2 ps=3.000000e-01 t=15.250000 d=1.954768e-01 ...
+```
+
+Let's identify some of these values:
+
+  - \#w: the number of working sets, i.e., of sets to be processed; this number usually increases after a transition, especially if non-urgent, or after a subdivision;
+  - \#r: the number of currently reached sets;
+  - t: the current time
+  - d: the diameter of the set
+  - l: the location
+  - c: the center of the set
+  - w: the width of the set on each dimension
+  - e: the list of previously fired events
+
+where the `[e:1]` prefix informs that this logging information is of verbosity level 1 for an evolver. Using a higher verbosity value would provide more detailed information, albeit with less clarity.
+
+Finally we can plot the list of enclosures for the two cases with these commands:
+
+```c++
+PlotHelper plotter(system.name());
+plotter.plot(upper_reach,"upper_reach");
+plotter.plot(lower_reach,"lower_reach");
+```
+
+The `PlotHelper` class is a streamlined class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed with a single argument, which will be used as a prefix for the name of the directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
+
+![upper-reach](/img/upper-reach.png "Finite time upper evolution")
+
+In the figure above, the upper evolution of the system is shown. The horizontal axis is for the valve aperture coordinate $a$, while the vertical axis is for the water level coordinate $x$; the extreme values for each axis are displayed. In the general case of more than two system variables, Ariadne creates a figure for each pair of variables, ordered alphabetically. In this specific case, we see that the behavior of the system is cyclic (counterclockwise), with the following four phases:
+
+  1. The valve is closed, $x$ falls (left part of the figure)
+  2. The valve opens with a finite time, $x$ ultimately starts rising (bottom part)
+  3. The valve is fully opened, $x$ rises (right part)
+  4. The valve closes with a finite time, $x$ ultimately starts falling (top part)
+
+The top and bottom bands are due to non-determinism caused by the non-urgent transitions. 
+
+On this matter, let us compare this figure with the one for lower semantics.
+
+![lower-reach](/img/lower-reach.png "Finite time lower evolution")
+
+In the case of lower semantics, sometimes the activation of a non-urgent transition is not decidable, due to the fact that only a part of the set performs the crossing. For that reason, a significant percentage of the sets is discarded. This situation is apparent from the thinner bands in respect to upper semantics. It can also be detected if we analyze the log output during evolution, where the number of working sets is significantly higher for upper semantics. Ultimately, given the initial set it is still possible to complete a full cycle even for lower semantics, but that result is not always guaranteed based on the numerical settings chosen.
 
 ### 3.1.2 - Infinite time outer evolution
 
