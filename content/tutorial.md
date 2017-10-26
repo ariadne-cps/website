@@ -18,7 +18,7 @@ This tutorial has the purpose of providing detailed information for *users* of t
   2. [Construction of a model](#2-system-model-construction) for the system;
   3. [Analysis of the model](#3-system-model-analysis), in terms of both evolution and verification.
 
-Ariadne currently uses a programmatic C++ approach to describe a model and analyze it. The full code presented in the following is available [here](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
+Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
 
 # 1 - The system
 
@@ -46,7 +46,7 @@ The model of the valve assumes that the valve opens or closes in a finite time $
 
 ![valve-model](/img/valvemodel.png "The valve model")
 
-Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronize* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.
+Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronise* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.
 
 Invariants in the *opening* and *closing* locations are set as the complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
 
@@ -56,7 +56,7 @@ As discussed previously, the valve is receptive to an *open* and *close* command
  
 ![controller-model](/img/controllermodel.png "The controller model")
 
-Consequently, the automaton is characterized by two states: *rising*, when we are operating under the assumption that the water level is rising, and *falling*, then the assumption is the opposite one. 
+Consequently, the automaton is characterised by two states: *rising*, when we are operating under the assumption that the water level is rising, and *falling*, then the assumption is the opposite one. 
 
 We define $h\_{\max} = 7.75$ meters and $h\_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h\_{\max}$ would trigger the *close* event, while a condition $x \leq h\_{\min}$ would trigger the *open* event. 
 However, in our model, we want to provide non-determinism by introducing *non-urgent* (or *permissive*) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the *open* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\min},\,h\_{\min}+\delta]$ interval. Similarly, the *close* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\max},\,h\_{\max}+\delta]$ interval.
@@ -73,7 +73,7 @@ The formalism used internally by the library is that of Hybrid I/O Automata (see
 
 The additional constraint given by the I/O character is not strictly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.
 
-The costruction of an automaton can be summarized in these steps:
+The costruction of an automaton can be summarised in these steps:
 
   1. An automaton object is created;
   2. Variables and events are added with their I/O character;
@@ -325,7 +325,7 @@ In order to create the composed automaton of the tank and the valve:
 HybridIOAutomaton tank_valve = compose("tank,valve",tank,valve,flow,idle);
 ```
 
-The first argument is the name of the new automaton. The second and third arguments are the components to use, while the fourth and fifth arguments represent the initial locations for each component. Specifying an initial location is required if we want to optimize the resulting system, by creating a product with the actual reachable locations: the choice of the initial location may influence the discrete reachability and consequently the complexity of the system.
+The first argument is the name of the new automaton. The second and third arguments are the components to use, while the fourth and fifth arguments represent the initial locations for each component. Specifying an initial location is required if we want to optimise the resulting system, by creating a product with the actual reachable locations: the choice of the initial location may influence the discrete reachability and consequently the complexity of the system.
 
 The complete system is obtained with:
 
@@ -340,7 +340,7 @@ An important remark on the construction of the initial location for the `tank,va
 
 # 3 - System model analysis
 
-In order to analyze a system in Ariadne, we must prepare an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
+In order to analyse a system in Ariadne, we must prepare an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
 
 In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master). In addition, the analysis routines are kept in a dedicated [analysis.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/analysis.h?at=master) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
 
@@ -359,7 +359,7 @@ followed by adding the system and analysis headers:
 
 The content of the `main` function of the executable revolves around the collection of four items:
 
-  1. The system to analyze;
+  1. The system to analyse;
   2. The initial set to use;
   3. The verbosity for runtime info;
   4. The flag for plotting graphical results.
@@ -400,6 +400,8 @@ For the routines in this subsection, we are simply interested in computing the r
 
 ### 3.1.1 - Finite time evolution
 
+For this subsection, we refer to the `finite_time_upper_evolution` and `finite_time_lower_evolution` functions in the analysis file. Since they essentially differ only by the semantics used, we provide a `_finite_time_evolution` helper function that contains the bulk of the code for the interaction with the Ariadne library.
+
 The first step is the creation of a `HybridEvolver` object, which provides methods for finite time evolution:
 
 ```c++
@@ -428,11 +430,11 @@ where the default verbosity value is zero, i.e., no output is provided.
 
 As soon as the evolver is set up, we can perform finite-time evolution by computing the *orbit* of the automaton. To call the `HybridEvolver::orbit` method we need three arguments:
 
-  1. The initial set expressed as a *localized* enclosure;
+  1. The initial set expressed as a *localised* enclosure;
   2. The evolution limits in terms of maximum continuous time and maximum number of discrete transitions;
   3. The *semantics* for evolution.
 
-The initial set must be expressed as a localized enclosure, meaning a set paired with a discrete location. If we want to perform evolution for an initial set on two locations, like the one of the tutorial, we actually need to compute two separate orbits. In addition, the initial set that we provided is a hybrid constraint set. For these reasons, we provide the following code snippet for conversion:
+The initial set must be expressed as a localised enclosure, meaning a set paired with a discrete location. If we want to perform evolution for an initial set on two locations, like the one of the tutorial, we actually need to compute two separate orbits. In addition, the initial set that we provided is a hybrid constraint set. For these reasons, we provide the following code snippet for conversion:
 
 ```c++
 HybridEvolver::EnclosureListType initial_enclosures;
@@ -463,17 +465,14 @@ Finally, the semantics in Ariadne is either `UPPER_SEMANTICS` or `LOWER_SEMANTIC
 Let's call the orbit method for each of the enclosures and each of the semantics, adjoining the reach sets of a given semantics to a common `HybridEvolver::EnclosureListType` data structure:
 
 ```c++
-HybridEvolver::EnclosureListType upper_reach, lower_reach;
+HybridEvolver::EnclosureListType reach;
 for (HybridEvolver::EnclosureListType::const_iterator it = 
   initial_enclosures.begin();
   it != initial_enclosures.end(); 
   ++it) {
-    HybridEvolver::OrbitType upper_orbit = evolver.orbit(*it, evol_limits, 
-                    UPPER_SEMANTICS);
-    upper_reach.adjoin(upper_orbit.reach());
-    HybridEvolver::OrbitType lower_orbit = evolver.orbit(*it, evol_limits, 
-                    LOWER_SEMANTICS);
-    lower_reach.adjoin(lower_orbit.reach());
+    HybridEvolver::OrbitType orbit = evolver.orbit(*it, 
+                    evol_limits, semantics);
+    reach.adjoin(upper_orbit.reach());
 }
 ```
 
@@ -496,15 +495,16 @@ Let's identify some of these values:
 
 where the `[e:1]` prefix informs that this logging information is of verbosity level 1 for an evolver. Using a higher verbosity value would provide more detailed information, albeit with less clarity.
 
-Finally we can plot the list of enclosures for the two cases with these commands:
+Finally we can plot the list of enclosures for each reach set with these commands:
 
 ```c++
 PlotHelper plotter(system.name());
 plotter.plot(upper_reach,"upper_reach");
-plotter.plot(lower_reach,"lower_reach");
 ```
 
-The `PlotHelper` class is a streamlined class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed with a single argument, which will be used as a prefix for the name of the directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
+where without lack of generality we focus on the upper reach case.
+
+The `PlotHelper` class is a class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed with a single argument, which will be used as a prefix for the name of the directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
 
 ![upper-reach](/img/upper-reach.png "Finite time upper evolution")
 
@@ -521,11 +521,43 @@ On this matter, let us compare this figure with the one for lower semantics.
 
 ![lower-reach](/img/lower-reach.png "Finite time lower evolution")
 
-In the case of lower semantics, sometimes the activation of a non-urgent transition is not decidable, due to the fact that only a part of the set performs the crossing. For that reason, a significant percentage of the sets is discarded. This situation is apparent from the thinner bands in respect to upper semantics. It can also be detected if we analyze the log output during evolution, where the number of working sets is significantly higher for upper semantics. Ultimately, given the initial set it is still possible to complete a full cycle even for lower semantics, but that result is not always guaranteed based on the numerical settings chosen.
+In the case of lower semantics, sometimes the activation of a non-urgent transition is not decidable, due to the fact that only a part of the set performs the crossing. For that reason, a significant percentage of the sets is discarded. This situation is apparent from the thinner bands in respect to upper semantics. It can also be detected if we analyse the log output during evolution, where the number of working sets is significantly higher for upper semantics. Ultimately, given the initial set it is still possible to complete a full cycle even for lower semantics, but that result is not always guaranteed based on the numerical settings chosen.
 
-### 3.1.2 - Infinite time outer evolution
+### 3.1.2 - Infinite time evolution
 
-### 3.1.3 - Infinite time lower evolution
+For this subsection, we refer to the `infinite_time_outer_evolution` and `infinite_time_epsilon_lower_evolution` methods, which mostly differ by the semantics used. We will present these methods after discussion of the common part of the analysis procedure.
+
+In infinite time evolution, we perform a sequence of finite time evolutions until *convergence* is obtained, i.e., the reached set does not grow anymore between two evolutions. Since there is no guarantee that convergence is obtained for a given accuracy, or that convergence is possible for the system, we introduce a *bounding domain* expressed as a hybrid box:
+
+```c++
+HybridBoxes domain(system.state_space(),Box(2,0.0,1.0,4.5,9.0));
+```
+which corresponds to $0 \leq a \leq 1$ and $4.5 \leq x \leq 9$ for all locations.
+
+In addition, it is necessary to choose an *accuracy* setting, which is a non-negative number. First of all, the accuracy defines the amount of times we split the domain in order to discretise the space. Discretization is necessary in order to perform an efficient and effective identification of the termination condition for infinite time evolution (both in the outer and lower evolution). Such discretization is also used internally to automatically identify proper settings for the underlying finite time evolutions.
+
+For this reason, infinite time evolution is performed from a `HybridReachabilityAnalyser` class, which masks the internal use of evolver object(s). In order to construct an analyser, we issue:
+
+```c++
+HybridReachabilityAnalyser analyser(system,domain,accuracy);
+```
+
+where for the purposes of the tutorial we set
+
+```c++
+int accuracy = 5;
+```
+
+which means that the domain is split $2^5 = 32$ times its nominal amount for each dimension; since for zero accuracy we split the domain once, we end up with discretization "cells" of widths $1/64$ and $4.5/64$, respectively for $a$ and $x$.
+
+As with the evolver, an analyser can be configured with a verbosity. In particular, if the verbosity depth is sufficiently high, then the logging of the internal evolver methods is performed.
+
+In addition, an analyser has a `HybridReachabilityAnalyserSettings` object that can be accessed using `analyser.settings()`, as with the evolver case. However, most of these settings are used internally when performing verification on the system, hence they will not be discussed here. The only setting that has a significant relevance for the user is the `enable_lower_pruning` flag (true by default). For lower semantics only, the flag enables the elimination of overlapping trajectories, increasing the efficiency of the procedure. We remind here that for upper semantics we are not allowed to remove behaviors of the system. Such setting is not offered at the evolver level for a simple reason: the identification of the overlapping condition is more viable when we have a discretization of the continuous space, which is performed only at the analyser level. Finally, we should remark that pruning is performed stochastically, hence results may vary between different runs of the same method.
+
+Let us now present the methods discussed here: the calculation of the *outer reachability* $O$ and the *epsilon-lower reachability* $L\_{\varepsilon}$ approximations of the exact reachable set $Re$:
+
+  - $O$ is an over-approximated set such that $O \supset Re$. Since we want to include any possible behaviors (i.e., trajectories) produced by the evolution of the system, upper semantics is used.
+  - $L_{\varepsilon}$ is an over-approximated set such that $\exists\, x \in Re \,\,s.t.\, || x - L\_{\varepsilon}  || \leq \varepsilon $; in other terms, we guarantee that the approximation is within a bounded distance $\varepsilon$ to the reachable set. In order to guarantee such bound, lower semantics is used. Since lower semantics may cause early termination of the evolution, we have that $L\_{\varepsilon}$ is an over-approximation of a *subset* of $Re$, which is different from an inner approximation $I$ such that $I \subset Re$.
 
 ## 3.2 - Verification
 
