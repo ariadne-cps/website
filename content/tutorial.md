@@ -559,6 +559,32 @@ Let us now present the methods discussed here: the calculation of the *outer rea
   - $O$ is an over-approximated set such that $O \supset Re$. Since we want to include any possible behaviors (i.e., trajectories) produced by the evolution of the system, upper semantics is used.
   - $L_{\varepsilon}$ is an over-approximated set such that $\exists\, x \in Re \,\,s.t.\, || x - L\_{\varepsilon}  || \leq \varepsilon $; in other terms, we guarantee that the approximation is within a bounded distance $\varepsilon$ to the reachable set. In order to guarantee such bound, lower semantics is used. Since lower semantics may cause early termination of the evolution, we have that $L\_{\varepsilon}$ is an over-approximation of a *subset* of $Re$, which is different from an inner approximation $I$ such that $I \subset Re$.
 
+In order to compute $O$ in the `infinite_time_outer_evolution` function, we issue
+
+```c++
+HybridDenotableSet reach = analyser.outer_chain_reach(initial_set);
+```
+where a `HybridDenotableSet` is simply a set of cells, where each cell is enriched with the discrete location involved. Denotable sets in Ariadne are currently implemented though Binary Decision Diagrams for efficiency purposes.
+
+As usual, we can plot the resulting set using a `PlotHelper`, namely:
+
+```c++
+plotter.plot(reach,"outer",accuracy);
+```
+
+Here we show that it is possible to provide an additional argument, given by an integer value, that is used to extend the filename. This option is useful during verification, where a progressive increase of the accuracy is performed until an answer is obtained. In that case, we are able to output several graphical files within the same directory, where each one is named uniquely based the accuracy used.
+
+Additionally, this variant of the plot method provides all the projections of the set on each location. 
+
+![outer-reach](/img/outer-reach.png "Infinite time outer evolution at accuracy 5")
+
+In the figure above we can see the reached set, which can be compared with the one obtained for finite time evolution. The most relevant difference is that discretisations occur after *each transition* and after a given continuous evolution time; after such discretisation, the current set is compared with the set on the previous discretisation in order to identify if no cells are reached. A total of 16 discretisation are performed before this condition is met, as can be seen if we set a verbosity of 2. Discretisations necessarily increase the width of the flow tube, which is apparent on the right side of the figure: this is the section where the dynamics is the slowest, hence more discretisation events occur. The "artifacts" on the top right and bottom left corners of the figure are due to discretisation error; while quite relevant at accuracy 5, it can be shown for accuracy 7 to reduce their overall impact, thus shrinking to zero for infinite accuracy.
+
+![outer-reach-7](/img/outer-reach-7.png "Infinite time outer evolution at accuracy 7")
+
+Both discretised outer reach sets seem quite coarse in respect to the finite time case. While this is the case for flow tubes with very small diameter, for large tubes the opposite holds: just look at the extreme value for $x$ for finite time: even if only one cycle has been performed, it is already coarser than the result obtained for infinite time at accuracy 5. This is due to the fact that discretisation allows to efficiently split the set and work on smaller enclosures, which yield better bounds and consequently a tighter reached set overall. Such splitting without discretisation would be possible, but it would be less effective and more expensive from the computational viewpoint.
+Summarizing, discretisations enable manipulations of the flow tube that, while introducing over-approximations, improve the efficiency and effectiveness of the procedure for large flow tubes.
+
 ## 3.2 - Verification
 
 ### 3.2.1 - Safety verification
