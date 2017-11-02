@@ -418,7 +418,7 @@ evolver.settings().set_maximum_step_size(0.3);
 
 Here the setting is called a *maximum* step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally halves the provided value until the value is acceptable. However, if the step size is reasonably small in respect to the dynamics, it is usually the case that a bounding box is identified with no halving.
 
-Another relevant setting is the `reference_enclosure_widths` which informs the evolver about a particular width value on each dimension of the continuous space; such width should be chosen as proportional to the precision required on the given dimension when discretizing the reachable set. Here an "enclosure" is a name for an evolution set at a given time, which can also be seen as a section of the flow tube. The reference widths are meant to be constant for a given system. The `maximum_enclosure_widths_ratio` setting is then multiplied with the reference widths to decide if an enclosure is too large in respect to a desired numerical accuracy. If `enable_premature_termination_on_enclosure_size` is enabled (enabled by default), then evolution is stopped: this is useful to terminate when the set becomes too large to provide meaningful data for analysis. If `enable_subdivisions` is enabled (disabled by default), evolution continues but the set is split into two enclosures of smaller size.
+Another relevant setting is the `reference_enclosure_widths` which informs the evolver about a particular width value on each dimension of the continuous space; such width should be chosen as proportional to the accuracy required on the given dimension when discretizing the reachable set. Here an "enclosure" is a name for an evolution set at a given time, which can also be seen as a section of the flow tube. The reference widths are meant to be constant for a given system. The `maximum_enclosure_widths_ratio` setting is then multiplied with the reference widths to decide if an enclosure is too large in respect to a desired numerical accuracy. If `enable_premature_termination_on_enclosure_size` is enabled (enabled by default), then evolution is stopped: this is useful to terminate when the set becomes too large to provide meaningful data for analysis. If `enable_subdivisions` is enabled (disabled by default), evolution continues but the set is split into two enclosures of smaller size.
 
 The assignment of the verbosity is performed with
 
@@ -534,7 +534,7 @@ HybridBoxes domain(system.state_space(),Box(2,0.0,1.0,4.5,9.0));
 ```
 which corresponds to $0 \leq a \leq 1$ and $4.5 \leq x \leq 9$ for all locations.
 
-In addition, it is necessary to choose an *accuracy* setting, which is a non-negative number. First of all, the accuracy defines the amount of times we split the domain in order to discretise the space. Discretization is necessary in order to perform an efficient and effective identification of the termination condition for infinite time evolution (both in the outer and lower evolution). Such discretization is also used internally to automatically identify proper settings for the underlying finite time evolutions.
+In addition, it is necessary to choose an *accuracy* setting, which is a non-negative number. First of all, the accuracy defines the amount of times we split the domain in order to discretise the space. This maximum splitting identifies a *grid* of rectangular *cells* aligned to the axes of the continuous space. Discretization is necessary in order to perform an efficient and effective identification of the termination condition for infinite time evolution (both in the outer and lower evolution). Such discretization is also used internally to automatically identify proper settings for the underlying finite time evolutions.
 
 For this reason, infinite time evolution is performed from a `HybridReachabilityAnalyser` class, which masks the internal use of evolver object(s). In order to construct an analyser, we issue:
 
@@ -548,7 +548,7 @@ where for the purposes of the tutorial we set
 int accuracy = 5;
 ```
 
-which means that the domain is split $2^5 = 32$ times its nominal amount for each dimension; since for zero accuracy we split the domain once, we end up with discretization "cells" of widths $1/64$ and $4.5/64$, respectively for $a$ and $x$.
+which means that the domain is split $2^5 = 32$ times its nominal amount for each dimension; since for zero accuracy we split the domain once, we end up with discretization cells of widths $1 / 64$ and $4.5 / 64$, respectively for $a$ and $x$.
 
 As with the evolver, an analyser can be configured with a verbosity. In particular, if the verbosity depth is sufficiently high, then the logging of the internal evolver methods is performed.
 
@@ -582,11 +582,142 @@ In the figure above we can see the reached set, which can be compared with the o
 
 ![outer-reach-7](/img/outer-reach-7.png "Infinite time outer evolution at accuracy 7")
 
-Both discretised outer reach sets seem quite coarse in respect to the finite time case. While this is the case for flow tubes with very small diameter, for large tubes the opposite holds: just look at the extreme value for $x$ for finite time: even if only one cycle has been performed, it is already coarser than the result obtained for infinite time at accuracy 5. This is due to the fact that discretisation allows to efficiently split the set and work on smaller enclosures, which yield better bounds and consequently a tighter reached set overall. Such splitting without discretisation would be possible, but it would be less effective and more expensive from the computational viewpoint.
+Both discretised outer reach sets seem quite coarse in respect to the finite time evolution set. While this is the case for flow tubes with very small diameter, for large tubes the opposite holds: just look at the extreme value for $x$ for finite time: even if only one cycle has been performed, it is already higher than the result obtained for infinite time at accuracy 5. This is due to the fact that discretisation allows to efficiently split the set and work on smaller enclosures, which yield better bounds and consequently a tighter reached set overall. Splitting without discretisation is actually feasible, but it is less effective and more expensive from the computational viewpoint.
 Summarizing, discretisations enable manipulations of the flow tube that, while introducing over-approximations, improve the efficiency and effectiveness of the procedure for large flow tubes.
+
+The computation of the $\varepsilon$-lower approximation, along with the value of $\varepsilon$, is performed with
+
+```c++
+HybridDenotableSet reach;
+HybridFloatVector epsilon;
+make_lpair<HybridDenotableSet,HybridFloatVector>(reach,epsilon) = 
+                   analyser.epsilon_lower_chain_reach(initial_set);
+```
+
+Here we provide a value of $\varepsilon$ for each dimension, corresponding to the largest width of the flow tube for any trajectory of the evolution.
+
+The result of $L\_{\varepsilon}$ for accuracy 5 is shown below:
+
+![epsilon-lower-reach-5](/img/epsilon-lower-reach-5.png "Infinite time epsilon lower evolution at accuracy 5")
+
+Compared with the corresponding outer evolution, we notice a significantly thinner reached set. The main reason is that the flow tube is *discretised separately*, instead of discretising and resuming from the discretised set. The motivation is that for lower semantics we cannot split the set, which would happen if we converted the set into cells. Consequently, the discretisation is "kept on the side" only to check whether the reached set passes through the same cells: if that is the case, we terminate the infinite-time evolution. As a result, the quality of the flow is roughly the same as that obtained using finite-time evolution with the same step size, plus the over-approximation error of projection onto a grid. 
+
+As already discussed earlier, there are intrinsic advantages in the use of discretisation. First, we can provide a termination condition which is not rigorous but whose accuracy increasing with the accuracy setting. Second, we can perform pruning of the trajectories, as shown in the bottom part of the figure, where the subset of the trajectories introduces a "hole" in the flow tube. The tradeoff here is between computational efficiency and quality of results; keeping in mind that $L\_{\varepsilon}$ allows to work with any subset of $Re$, holes are perfectly acceptable if we need to analyse only the extreme values of the set. The motivation for the upper part of the figure not having a hole is that the flow tubes are larger, i.e., there is more over-approximation error as already shown in the finite time case. The result is that the trajectories partially overlap.
 
 ## 3.2 - Verification
 
+Verification in Ariadne currently builds on top of infinite time evolution: the purpose is to analyse the reachable set of the system, rather than focus on a specific time window. Still, it is possible to use the methods described below to address finite time evolution: it suffices to compose the original system with an automaton featuring a single clock $T\_1$ and an invariant $T\_1 \leq T\_{\max}$, where $T\_{\max}$ is the desired time horizon. In this way, the new system is unable to progress after the time limit for the clock is reached.
+
+Reachability analysis can be easily used to perform *safety* verification: given a safe set, check whether the reachable set of a system is within it (positive answer) or without it (negative answer). Let us explain this concept using the following figure:
+
+![safety-as-sets](/img/safety-as-sets.png "Safety verification expressed in terms of sets")
+
+Here we have the same reachable set $Re$, with two different safe sets $S\_1$ and $S\_2$. 
+
+On the left, we want to prove that $Re$ is safe in respect to $S\_1$: to do that, we want to check if the outer approximation $O$ is such that $O \in S\_1$; if that is the case, then also $Re \in S\_1$ holds. 
+
+On the right, we want to prove that $Re$ is unsafe in respect to $S\_2$: to do that, we want to check if a point of the $\varepsilon$-lower approximation $L\_{\varepsilon}$ is at least $\varepsilon$ away from $S\_2$; if that is the case, then $Re$ is not inside $S\_2$.
+
+Our verification routines can also be made *parametric*, where we identify one or more parameters of the system (i.e., `RealParameter` objects that appear in the system model) and provide intervals for their value. Then, we split those intervals and analyze the system for each of the boxes given by the splitting. In this way we have some information on the effect of varying these "design" parameters and possibly identify optimal values in respect to the verification objective.
+
+Let us now introduce the specification required by Ariadne to verify a system. Since safety verification relies on infinite time evolution, we first require a bounding domain as explained in the previous subsection. Secondarily, it is necessary to provide the safe set. In Ariadne such set is expressed as a `ConstraintSet` $f^{-1}\left\(C\right\)$, i.e., the pre-image of a box $C$ in respect to a vector function $f$. More in general, we can provide a `HybridConstraintSet` to supply different constraints for different locations. For this tutorial we want to describe a very simple safe set, hence we have defined a custom `getSafetyConstraint` function with the following body:
+
+```c++
+RealVariable a("a"), x("x");
+List<RealVariable> varlist;
+varlist.append(a);
+varlist.append(x);
+RealExpression expr = x;
+List<RealExpression> consexpr;
+consexpr.append(expr);
+VectorFunction cons_f(consexpr,varlist);
+Box codomain(1,5.25,8.25);
+
+return HybridConstraintSet(system.state_space(),
+                           ConstraintSet(cons_f,codomain));
+```
+
+In practice, we build the list of variables in order to construct a vector function $f$ equal to $x$ (meaning the identity function on $x$), with a unidimensional $C = \[5.25, 8.25\]$ codomain. This is equivalent to say that the safe set $f^{-1}\left( C \right)$ is $\[5.25, 8.25\]$ itself. Finally, we extend the constraint set to the hybrid state space of the system.
+
+In order to perform verification, it is necessary to create a `Verifier` object:
+
+```c++
+Verifier verifier;
+```
+
+Differently from an evolver or an analyser, a verifier does not take the system as input. This is because in general we can verify more than one system, e.g., two systems for *dominance checking* routines (not covered in this tutorial). Instead, we provide a specific input object to the method, in the case of safety a `SafetyVerificationInput`:
+
+```c++
+SafetyVerificationInput verInput(system, initial_set, domain, 
+                                 safety_constraint);
+```
+in which we collect all the inputs common to safety verification methods.
+
+As the evolver and analyser, a verifier can be provided with a `verbosity` value that, if sufficiently high, exposes the analyser and ultimately the evolver log output.
+
+In terms of settings, the `VerifierSettings` of [verifier.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/verifier.h?at=master) contains the following:
+
+  - `plot_results`: whether to plot reachability results at the analyser level; useful to check the actual reachable sets used for verification; defaults to false;
+  - `enable_backward_refinement_for_safety_proving`: allows to refine results by also calculating reachability in the backwards direction, from the safe set to the initial set, in order to exclude points that can not reach the safe set; however, while introducing a relevant computational overhead, the effectiveness of the approach highly depends on the system model; as such, the setting defaults to false;
+  - `maximum_parameter_depth`: a non-negative number, represents the number of splittings per parameter, for parametric verification; for example, 10 equals $2^{10} = 1024$ different subintervals for each parameter;
+  - `use_param_midpoints_for_proving`: allows to prove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, but not formally rigorous: in order to say that the box is safe, all of its points must be safe; consequently, the library defaults this setting to false;
+  - `use_param_midpoints_for_disproving`: allows to disprove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, and compared to the proving case the result is still correct: a single point in the box being unsafe makes the whole box unsafe; consequently, the library defaults this setting to true;
+
+Finally, a verifier has a `ttl` (i.e., "time to live") value: the allowed time (in seconds) for a single verification attempt. This means that for parametric verification, the `ttl` value is enforced for each split box. For this tutorial, we choose:
+
+```c++
+verifier.ttl = 140;
+```
+
 ### 3.2.1 - Safety verification
 
+In order to perform safety verification, it is sufficient to issue:
+
+```c++
+verifier.safety(verInput);
+```
+
+where the output of the method is a `tribool`, i.e., a three-valued logic type. This means that an `indeterminate` value is also possible, along with a `true` or `false` results. The reason is the following: the method starts by trying to verify the system with accuracy 0 and, if unsuccessful, it retries with accuracy 1, meaning that the discretisation cells are halved for each dimension. It continues to increase the accuracy until a `true` or `false` result is obtained or until the `ttl` deadline is hit, in that case returning `indeterminate`. In order to see detailed information on the verification procedure, a verbosity level of 2 or higher is recommended.
+
 ### 3.2.2 - Parametric safety verification
+
+For the parametric case, we first need to introduce the parameters:
+
+```c++
+RealParameterSet parameters;
+parameters.insert(RealParameter("hmin",Interval(5.0,6.0)));
+parameters.insert(RealParameter("hmax",Interval(7.5,8.5)));
+```
+
+Here the parameters must necessarily be present in the system to verify. The existing values for the parameters will be replaced by the values obtained from the splitting of the `RealParameterSet`.
+
+For this tutorial, we want to set
+
+```c++
+verifier.settings().maximum_parameter_depth = 3;
+```
+meaning that we will have a splitting of the parameters space into a 8x8 grid.
+
+Now verification is performed with:
+
+```c++
+list<ParametricOutcome> results = verifier.parametric_safety(
+                                             verInput, parameters);
+```
+where each `ParametricOutcome` contains the values of the parameters along with the `tribool` verification outcome. If we use a verbosity of 1, we can see how the 8x8 = 64 parameter splits are progressively processed:
+
+```c++
+[v:1]  Split parameters set #1/64: values {{hmax@Real(8.125,8.25)},{hmin@Real(5.25,5.375)}}
+```
+while a verbosity of 2 shows the accuracy required for each set.
+
+Finally, we can actually plot the list of outcomes using the following:
+
+```c++
+plotter.plot(results,verifier.settings().maximum_parameter_depth);
+```
+which returns a figure for each couple of parameters.
+
+![parametric-safety](/img/parametric-safety.png "Parametric safety verification results")
+
+Since the parameters are ordered alphabetically, `hmax` is on the x-axis and `hmin` is on the y-axis. As intuition suggests, the system is safe (green) for low values of $h\_{\max}$ and high values of $h\_{\min}$ and unsafe (red) otherwise. The yellow boxes are the result of an insufficient accuracy in respect to the chosen `ttl`. If we used a higher `maximum_parameter_depth`, then the yellow bands would grow thinner, yielding larger regions where a true or false value is identified.
