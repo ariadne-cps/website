@@ -340,7 +340,9 @@ An important remark on the construction of the initial location for the `tank,va
 
 # 3 - System model analysis
 
-In order to analyse a system in Ariadne, we must prepare an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
+In this section we provide information on how to analyse a system, both in terms of [evolution](#3-1-evolution) and [verification](#3-2-verification).
+
+The first step is the preparation of an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
 
 In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master). In addition, the analysis routines are kept in a dedicated [analysis.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/analysis.h?at=master) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
 
