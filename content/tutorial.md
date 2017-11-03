@@ -576,7 +576,7 @@ Here we show that it is possible to provide an additional argument, given by an 
 
 Additionally, this variant of the plot method provides all the projections of the set on each location. 
 
-![outer-reach](/img/outer-reach.png "Infinite time outer evolution at accuracy 5")
+![outer-reach](/img/outer-reach-5.png "Infinite time outer evolution at accuracy 5")
 
 In the figure above we can see the reached set, which can be compared with the one obtained for finite time evolution. The most relevant difference is that discretisations occur after *each transition* and after a given continuous evolution time; after such discretisation, the current set is compared with the set on the previous discretisation in order to identify if no cells are reached. A total of 16 discretisation are performed before this condition is met, as can be seen if we set a verbosity of 2. Discretisations necessarily increase the width of the flow tube, which is apparent on the right side of the figure: this is the section where the dynamics is the slowest, hence more discretisation events occur. The "artifacts" on the top right and bottom left corners of the figure are due to discretisation error; while quite relevant at accuracy 5, it can be shown for accuracy 7 to reduce their overall impact, thus shrinking to zero for infinite accuracy.
 
