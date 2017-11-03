@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical Systems</title>
+  <meta property="og:title" content="Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical Systems" />
+  <meta name="twitter:title" content="Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical …" />
+  <meta name="description" content="MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It is split into three sections:
+ Description of a simple system that will be used for the tutorial; Construction of a model for the system; Analysis of the model, in terms of both evolution and verification.  Ariadne currently uses a programmatic C&#43;&#43; approach to describe a model and analyse it.">
+  <meta property="og:description" content="MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It is split into three sections:
+ Description of a simple system that will be used for the tutorial; Construction of a model for the system; Analysis of the model, in terms of both evolution and verification.  Ariadne currently uses a programmatic C&#43;&#43; approach to describe a model and analyse it.">
+  <meta name="twitter:description" content="MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It is split into three sections: …">
+  <meta name="author" content="Luca Geretti"/>
+  <link href='http://www.ariadne-cps.org/img/ariadne.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="http://www.ariadne-cps.org/img/ariadne.png" />
+  <meta name="twitter:image" content="http://www.ariadne-cps.org/img/ariadne.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="http://www.ariadne-cps.org/tutorial/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ariadne" />
+
+  <meta name="generator" content="Hugo 0.30.2" />
+  <link rel="canonical" href="http://www.ariadne-cps.org/tutorial/" />
+  <link rel="alternate" href="http://www.ariadne-cps.org/index.xml" type="application/rss+xml" title="Ariadne">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="http://www.ariadne-cps.org/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="http://www.ariadne-cps.org/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="http://www.ariadne-cps.org/css/highlight.min.css" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.css" integrity="sha256-sCl5PUOGMLfFYctzDW3MtRib0ctyUvI9Qsmq2wXOeBY=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/default-skin/default-skin.min.css" integrity="sha256-BFeI1V+Vh1Rk37wswuOYn5lsTcaU96hGaI7OUVCLjPc=" crossorigin="anonymous" />
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="http://www.ariadne-cps.org/">Ariadne</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="About" href="/about">About</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Publications" href="/publications">Publications</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Installation" href="/installation">Installation</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tutorial" href="/tutorial">Tutorial</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Ariadne" href="http://www.ariadne-cps.org/">
+            <img class="avatar-img" src="http://www.ariadne-cps.org/img/ariadne.png" alt="Ariadne" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="page-heading">
+              <h1>Tutorial</h1>
+                
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<p>This tutorial has the purpose of providing detailed information for <em>users</em> of the library. It is split into three sections:</p>
+
+<ol>
+<li><a href="#1-the-system">Description of a simple system</a> that will be used for the tutorial;</li>
+<li><a href="#2-system-model-construction">Construction of a model</a> for the system;</li>
+<li><a href="#3-system-model-analysis">Analysis of the model</a>, in terms of both evolution and verification.</li>
+</ol>
+
+<p>Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/">here</a> as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.</p>
+
+<h1 id="1-the-system">1 - The system</h1>
+
+<p><img src="/img/watertank.png" alt="watertank" title="The watertank system" /></p>
+
+<p>The system described for this tutorial is a <em>watertank</em> system. This example from hydrodynamics revolves around a tank component, which has a controlled input water flow and an output water flow. In particular, the input pressure $p$ is modulated by a valve to obtain the actual input $u$ to the tank. The controller acts in response to a reading $x_s$ of the actual water level $x$. The reading is affected by an uncertainty $\delta$.</p>
+
+<p><img src="/img/watertank-block.png" alt="watertank-block" title="The watertank system block diagram" /></p>
+
+<p>For our system model, we identify three components: the <a href="#1-1-tank-model">tank</a>, the <a href="#1-2-valve-model">valve</a> and the <a href="#1-3-controller-model">controller</a>. In order to provide a model of the sensor, instead, we would need to be able to express the relation $x_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).</p>
+
+<h2 id="1-1-tank-model">1.1 - Tank model</h2>
+
+<p>The model of the tank is simple, since it involves only one location, hereby called <em>flow</em>, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi_o = -\alpha\, x $ and the input flow $\Phi_i = \beta\, a$.</p>
+
+<p><img src="/img/tankmodel.png" alt="tank-model" title="The tank model" /></p>
+
+<p>Here we choose a fixed value $\alpha = 0.02$, which is a function of hydrodynamic quantities including the outlet section area. On the other hand, we want to have $\beta \in [0.3,\, 0.32863]$, with the semantics that the input flow is a <em>fixed</em> value in that interval. The motivation behind the interval is that we want to study the behavior of the system for all the values in the interval, under the assumption that $\beta$ has a fixed but unknown value. Let us remark again that Ariadne does not currently support <em>differential inclusions</em>, which would allow $\beta$ to vary within the interval.</p>
+
+<p>Please note that a more realistic expression for the output flow would require $\Phi_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.</p>
+
+<h2 id="1-2-valve-model">1.2 - Valve model</h2>
+
+<p>The model of the valve assumes that the valve opens or closes in a finite time $T = 4\, s$, with a linear opening or closing. Consequently we define two locations <em>opening</em> and <em>closing</em> in which the dynamics for the aperture $a$ is increasing or decreasing, respectively, with a rate equal to $\frac{1}{T}$. A third location <em>idle</em> instead models the valve being fully opened or fully closed, i.e., when $a$ is not allowed to vary.</p>
+
+<p><img src="/img/valvemodel.png" alt="valve-model" title="The valve model" /></p>
+
+<p>Transitions between locations in this automaton are either <em>internal</em> or <em>external</em>. An internal transition is fired from <em>opening</em> to <em>idle</em> as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from <em>closing</em> to <em>idle</em> as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated <em>event labels</em>, such as <em>open</em> and <em>close</em>, which <em>synchronise</em> with other automata with the same labels. In this case, since no transition guard is defined, we say that <em>open</em> and <em>close</em> are <em>input transitions</em> for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.</p>
+
+<p>Invariants in the <em>opening</em> and <em>closing</em> locations are set as the complements of the guards, in order to model the fact that the transitions are <em>urgent</em>, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.</p>
+
+<h2 id="1-3-controller-model">1.3 - Controller model</h2>
+
+<p>As discussed previously, the valve is receptive to an <em>open</em> and <em>close</em> commands. The controller is responsible for issuing such commands. In particular, for simplicity we want to have an <em>hysteretic</em> control such that we provide an <em>open</em> command when the water level is too low, or a <em>close</em> command when the water level is too high.</p>
+
+<p><img src="/img/controllermodel.png" alt="controller-model" title="The controller model" /></p>
+
+<p>Consequently, the automaton is characterised by two states: <em>rising</em>, when we are operating under the assumption that the water level is rising, and <em>falling</em>, then the assumption is the opposite one.</p>
+
+<p>We define $h_{\max} = 7.75$ meters and $h_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h_{\max}$ would trigger the <em>close</em> event, while a condition $x \leq h_{\min}$ would trigger the <em>open</em> event.
+However, in our model, we want to provide non-determinism by introducing <em>non-urgent</em> (or <em>permissive</em>) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the <em>open</em> event is both taken and not taken for all $x$ values in the $[-\delta+h_{\min},\,h_{\min}+\delta]$ interval. Similarly, the <em>close</em> event is both taken and not taken for all $x$ values in the $[-\delta+h_{\max},\,h_{\max}+\delta]$ interval.</p>
+
+<h1 id="2-system-model-construction">2 - System model construction</h1>
+
+<p>In Ariadne, the construction of a C++ data structure that represents the described model is performed progressively: we start with an empty automaton and we proceed to &ldquo;fill it&rdquo; with locations and transitions.</p>
+
+<p>The formalism used internally by the library is that of Hybrid I/O Automata (see <a href="http://www.sciencedirect.com/science/article/pii/S0890540103000671">this article</a> for reference). Essentially, in a hybrid I/O automaton variables and events have an I/O specification:</p>
+
+<ul>
+<li><em>internal</em> if they are not visible outside the automaton;</li>
+<li><em>output</em> if their dynamics are specified (variables) or they are fired (events) within the automaton;</li>
+<li><em>input</em> if they are specified or fired from another automaton.</li>
+</ul>
+
+<p>The additional constraint given by the I/O character is not strictly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.</p>
+
+<p>The costruction of an automaton can be summarised in these steps:</p>
+
+<ol>
+<li>An automaton object is created;</li>
+<li>Variables and events are added with their I/O character;</li>
+<li>Locations are added;</li>
+<li>Dynamics and invariants are added, specifying the location;</li>
+<li>Transitions are added, specifying the event, the source and target location, the guard and the reset.</li>
+</ol>
+
+<p>In the following we provide the specific implementation for each of the three components of the <a href="#2-1-tank">tank</a>, <a href="#2-2-valve">valve</a> and <a href="#2-3-controller">controller</a>, followed by a brief discussion on the final <a href="#2-4-composition">composition</a> of the automata. Please note that the details on each operation will not be repeated for all components.</p>
+
+<p>All the code discussed here can be found in the <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master">system.h</a> file of the repository.</p>
+
+<h2 id="2-1-tank">2.1 - Tank</h2>
+
+<p>The automaton can be constructed with the following instruction:</p>
+
+<pre><code class="language-c++">HybridIOAutomaton tank(&quot;tank&quot;);
+</code></pre>
+
+<p>where the argument string is useful for logging purposes. This is already a legal automaton, while still empty.</p>
+
+<p>Let us fill it with some behavior. First, we want to define the variables to use:</p>
+
+<pre><code class="language-c++">RealVariable a(&quot;a&quot;);
+RealVariable x(&quot;x&quot;);
+</code></pre>
+
+<p>Please note that, since variables are shared within the system, their definition may be provided only once for all components, at the top of the definition file. Still, sharing is performed based on the string label, not on the C++ variable name. Consequently, there may exist multiple variable objects with different names but same label.</p>
+
+<p>Variables need to be added to the automaton, specifying their I/O character:</p>
+
+<pre><code class="language-c++">tank.add_input_var(a);
+tank.add_output_var(x);
+</code></pre>
+
+<p>Now we want to define the location of the automaton:</p>
+
+<pre><code class="language-c++">DiscreteLocation flow(&quot;flow&quot;);
+</code></pre>
+
+<p>which is added to the automaton with</p>
+
+<pre><code class="language-c++">tank.new_mode(flow);
+</code></pre>
+
+<p>Now we can add dynamics for the location in respect to the automaton. But first, let us define some parameters:</p>
+
+<pre><code class="language-c++">RealParameter alpha(&quot;alpha&quot;,0.02);
+RealParameter beta(&quot;beta&quot;,Interval(0.3,0.32863));
+</code></pre>
+
+<p>where we use the <code>Interval</code> class to define an interval instead of a singleton value.</p>
+
+<p>Then, we add the dynamics with</p>
+
+<pre><code class="language-c++">tank.set_dynamics(flow, x, - alpha * x + beta * a);
+</code></pre>
+
+<p>An expression in Ariadne allows any nonlinear combination of variables, constants and parameters, along with the exp, log, sin, cos, tan and sqrt functions.</p>
+
+<h2 id="2-2-valve">2.2 - Valve</h2>
+
+<p>We start construction of the valve automaton with</p>
+
+<pre><code>HybridIOAutomaton valve(&quot;valve&quot;);
+</code></pre>
+
+<p>and add the only involved variable:</p>
+
+<pre><code>valve.add_output_var(a);
+</code></pre>
+
+<p>The three locations are then introduced and added using:</p>
+
+<pre><code>DiscreteLocation idle(&quot;idle&quot;);
+DiscreteLocation opening(&quot;opening&quot;);
+DiscreteLocation closing(&quot;closing&quot;);
+
+valve.new_mode(idle);
+valve.new_mode(opening);
+valve.new_mode(closing);
+</code></pre>
+
+<p>Before adding the corresponding dynamics, we set the parameter $T$:</p>
+
+<pre><code>RealParameter T(&quot;T&quot;,4.0);
+</code></pre>
+
+<p>after which we define:</p>
+
+<pre><code>valve.set_dynamics(idle, a, 0.0);
+valve.set_dynamics(opening, a, 1.0/T);
+valve.set_dynamics(closing, a, -1.0/T);
+</code></pre>
+
+<p>Now we move to events, by starting from the introduction of the labels:</p>
+
+<pre><code>DiscreteEvent e_open(&quot;open&quot;);
+DiscreteEvent e_close(&quot;close&quot;);
+DiscreteEvent e_idle(&quot;idle&quot;);
+</code></pre>
+
+<p>We remind here that events, like variables, are shared between automata using their string labels, not their C++ variable names.</p>
+
+<p>To add the events to the automaton, we need to provide their I/O character:</p>
+
+<pre><code>valve.add_input_event(e_open);
+valve.add_input_event(e_close);
+valve.add_internal_event(e_idle);
+</code></pre>
+
+<p>While the <em>open</em> and <em>close</em> events must necessarily be specified as input, since they are not issued by the valve automaton, the <em>idle</em> event may be internal or output equivalently. Choosing an internal event is preferable for incapsulation purposes, when we do not need an event to be read by other components.</p>
+
+<p>For transitions, let&rsquo;s start with the simplest case: transitions without a guard or a reset. Such case arises from the presence of an input event, where the guard and reset for the transition are set by the automaton that fires the event itself.</p>
+
+<p>The syntax required becomes:</p>
+
+<pre><code>valve.new_unforced_transition(e_open, idle, opening);
+valve.new_unforced_transition(e_close, idle, closing);
+</code></pre>
+
+<p>For such situation, we always consider the transition as <em>unforced</em> (i.e., non-urgent) for generality, in order to allow non-determinism depending on the actual guards and invariants. The first argument is the (input) event, the second is the <em>source</em> location and the third is the <em>target</em> location. In the case of self-loops, the target location can be equal to the source location.</p>
+
+<p>Let us now consider the case of internal/output transitions. First, we need to set the guards for the transitions:</p>
+
+<pre><code>RealExpression a_geq_one = a - 1.0;
+RealExpression a_leq_zero = - a;
+</code></pre>
+
+<p>Here we provide <code>RealExpression</code> variables for clarity, instead of directly using the expressions inline within the corresponding transitions. A guard expression $g$ is defined under a $g \geq 0$ assumption. Consequently, it may be necessary to rearrange terms to comply to the required convention. In our case, the two lines correspond to defining the guard expressions $a \geq 1$ and $a \leq 0$ respectively.</p>
+
+<p>To provide a reset, we need to define a variable-expression map instead:</p>
+
+<pre><code>std::map&lt;RealVariable,RealExpression&gt; rst_a_one;
+rst_a_one[a] = 1.0;
+std::map&lt;RealVariable,RealExpression&gt; rst_a_zero;
+rst_a_zero[a] = 0.0;
+</code></pre>
+
+<p>We are providing two separate reset maps, applying to the only variable $a$. If there are multiple variables and one of them is reset, then for safe specification a reset for each variable is required: in that case, an identity expression such as <code>rst[x] = x;</code> can be used.</p>
+
+<p>Now we can finally provide the transitions themselves:</p>
+
+<pre><code>valve.new_forced_transition(e_idle, opening, idle, rst_a_one, a_geq_one);
+valve.new_forced_transition(e_idle, closing, idle, rst_a_zero, a_leq_zero);
+</code></pre>
+
+<p>In this case, the transition is defined as <em>forced</em>, i.e., urgent. Using this specification, we are not required to provide invariants for the automaton: the invariant in a location is implicitly set as the complement of the union of the guard sets of outgoing transitions.</p>
+
+<h2 id="2-3-controller">2.3 - Controller</h2>
+
+<p>The construction of the controller for the system start with the usual</p>
+
+<pre><code>HybridIOAutomaton controller(&quot;controller&quot;);
+</code></pre>
+
+<p>after which we can add the involved variables and events:</p>
+
+<pre><code>controller.add_input_var(x);
+
+controller.add_output_event(e_open);
+controller.add_output_event(e_close);
+</code></pre>
+
+<p>Therefore, in opposition to the valve automaton, the controller &ldquo;reads&rdquo; a variable and &ldquo;writes&rdquo; events.</p>
+
+<p>The two locations are created and added in the usual way:</p>
+
+<pre><code>DiscreteLocation rising(&quot;rising&quot;);
+DiscreteLocation falling(&quot;falling&quot;);
+
+controller.new_mode(rising);
+controller.new_mode(falling);
+</code></pre>
+
+<p>Since no internal or output variable is present, we do not need to define any dynamics for this automaton.</p>
+
+<p>Moving to transitions, we want to provide two non-urgent transitions, hence we need to define proper guards and invariants. Let&rsquo;s start with defining some parameters:</p>
+
+<pre><code>RealParameter hmin(&quot;hmin&quot;,5.75);
+RealParameter hmax(&quot;hmax&quot;,7.75);
+RealParameter delta(&quot;delta&quot;,0.1);
+</code></pre>
+
+<p>which represent the lower threshold for the water level $h_{\min}$, the corresponding upper threshold $h_{\max}$, and the &ldquo;radius&rdquo; of non-determinism $\delta$.</p>
+
+<p>Let&rsquo;s define the invariant expressions for the locations:</p>
+
+<pre><code>RealExpression x_leq_hmax = x - hmax - delta;
+RealExpression x_geq_hmin = hmin - delta - x;
+</code></pre>
+
+<p>where Ariadne works under the assumption that an invariant expression $i$ allows evolution as long as $i \leq 0$; consequently, invariant expressions are complementary in respect to guards, where $g \geq 0$ must hold in order to allow leaving the location. In particular, the two expressions above correspond to $x \leq h_{\max} + \delta$ and $x \geq h_{\min} - \delta$, respectively.</p>
+
+<p>In order to add the invariants, we issue:</p>
+
+<pre><code>controller.new_invariant(rising, x_leq_hmax);
+controller.new_invariant(falling, x_geq_hmin);
+</code></pre>
+
+<p>It must be noted that, while only one guard per transition is allowed, we support multiple invariants per location.</p>
+
+<p>Guards are provided in the usual way:</p>
+
+<pre><code>RealExpression x_geq_hmax = x - hmax + delta;
+RealExpression x_leq_hmin = hmin + delta - x;
+</code></pre>
+
+<p>which correspond to $x \geq h_{\max} - \delta$ and $x \leq h_{\min} + \delta$, respectively.</p>
+
+<p>The transitions then become:</p>
+
+<pre><code>controller.new_unforced_transition(e_close, rising, falling, x_geq_hmax);
+controller.new_unforced_transition(e_open, falling, rising, x_leq_hmin);		
+</code></pre>
+
+<p>where we clearly need to specify that the transition is <em>unforced</em>. In this case, the transition <em>can</em> be fired for any point $x$ such that $i(x) \leq 0$ and $g(x) \geq 0$, i.e., for the intersection between the <em>invariant set</em> and the <em>guard set</em>. If we used a forced transition instead, the transition would be fired only in the intersection between the invariant set and the boundary of the guard set.</p>
+
+<p>Finally, we note how we necessarily omit the reset when no internal or output variable is present.</p>
+
+<h2 id="2-4-composition">2.4 - Composition</h2>
+
+<p>The Ariadne library currently supports only <em>horizontal</em> composition, meaning that two or more automata at the same level of abstraction can be composed to form a more complex automaton. Ariadne does not support vertical modularity in terms of different levels of abstraction and encapsulation. Consequently, we assume that all the automata are represented on a common &ldquo;horizontal namespace&rdquo; where all variable and event labels are shared.</p>
+
+<p>Composition is performed between a pair of automata and returns a new automaton which is the product of the original components. When multiple automata must be composed, a progressive sequence of compositions is issued until the product of all the components is performed. Since composition is commutative, the product order is irrelevant.</p>
+
+<p>In order to create the composed automaton of the tank and the valve:</p>
+
+<pre><code>HybridIOAutomaton tank_valve = compose(&quot;tank,valve&quot;,tank,valve,flow,idle);
+</code></pre>
+
+<p>The first argument is the name of the new automaton. The second and third arguments are the components to use, while the fourth and fifth arguments represent the initial locations for each component. Specifying an initial location is required if we want to optimise the resulting system, by creating a product with the actual reachable locations: the choice of the initial location may influence the discrete reachability and consequently the complexity of the system.</p>
+
+<p>The complete system is obtained with:</p>
+
+<pre><code>HybridIOAutomaton system = compose(&quot;tutorial&quot;,tank_valve,controller,
+                                   DiscreteLocation(&quot;flow,idle&quot;),rising);
+</code></pre>
+
+<p>Here the <code>tutorial</code> name ends up overwriting the previous <code>tank,valve</code> name, meaning that choosing a specific name for an intermediate automaton is inconsequential.</p>
+
+<p>An important remark on the construction of the initial location for the <code>tank,valve</code> component: the product between components implies that location names are combined, meaning that the order of components in the composition is relevant. However, please note that potential errors in the composition due to improper location naming are caught by the library during composition itself.</p>
+
+<h1 id="3-system-model-analysis">3 - System model analysis</h1>
+
+<p>In this section we provide information on how to analyse a system, both in terms of <a href="#3-1-evolution">evolution</a> and <a href="#3-2-verification">verification</a>.</p>
+
+<p>The first step is the preparation of an executable. For that reason, all the <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master">examples</a> of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.</p>
+
+<p>In this tutorial we follow the convention of having a separate system header file, namely <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master">system.h</a>. In addition, the analysis routines are kept in a dedicated <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/analysis.h?at=master">analysis.h</a> file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.</p>
+
+<p>But first of all let us examine the <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/tutorial.cc?at=master">tutorial.cc</a> executable. To work with the Ariadne library it is necessary to start by including the top header for user consumption:</p>
+
+<pre><code class="language-c++">#include &lt;ariadne.h&gt;
+</code></pre>
+
+<p>followed by adding the system and analysis headers:</p>
+
+<pre><code class="language-c++">#include &quot;system.h&quot;
+#include &quot;analysis.h&quot;
+</code></pre>
+
+<p>The content of the <code>main</code> function of the executable revolves around the collection of four items:</p>
+
+<ol>
+<li>The system to analyse;</li>
+<li>The initial set to use;</li>
+<li>The verbosity for runtime info;</li>
+<li>The flag for plotting graphical results.</li>
+</ol>
+
+<p>The system object is loaded with</p>
+
+<pre><code class="language-c++">HybridIOAutomaton system = Ariadne::getSystem();
+</code></pre>
+
+<p>using a custom function created in the system header. If we want to output the textual description of the system, we can issue:</p>
+
+<pre><code class="language-c++">cout &lt;&lt; system &lt;&lt; endl;
+</code></pre>
+
+<p>which provides a compact representation useful for debugging purposes. No graph-based output capabilities are currently available in the library.</p>
+
+<p>The initial set can be provided in different formats. For this tutorial we want to use a generic representation, i.e., a <code>HybridBoundedConstraintSet</code>. Such structure allows to specify a set for each location, thus allowing multiple initial sets. Namely:</p>
+
+<pre><code class="language-c++">HybridBoundedConstraintSet initial_set(system.state_space());
+initial_set[DiscreteLocation(&quot;flow,idle,rising&quot;)] = 
+            Box(2, 1.0,1.0, 6.0,7.5);
+initial_set[DiscreteLocation(&quot;flow,idle,falling&quot;)] = 
+            Box(2, 0.0,0.0, 6.0,7.5);
+</code></pre>
+
+<p>Here the first line constructs the set as empty, in the hybrid state space of the system. Then, we add sets for two specific locations. Specifically, we construct a <code>BoundedConstraintSet</code> from a simple <code>Box</code>, which is a coordinate-aligned set. In particular, the first argument of the constructor is the set dimension, while the remaining arguments are the lower and upper bounds for each variable, in alphabetical order. In other words, the continuous set is $\{a = 1 \, \land \, 6 \leq x \leq 7.5 \}$ in the <em>flow,idle,rising</em> location and $\{a = 0 \, \land \, 6 \leq x \leq 7.5 \}$ in the <em>flow,idle,falling</em> location.</p>
+
+<p>The verbosity is a non-negative value that allows to show textual runtime information down to a given depth: the higher the value, the lower the depth. In particular, the current depth is prefix to each textual line. Since only a global verbosity variable exists, it is currently not possible to display information exclusively at a specific depth.</p>
+
+<p>Finally, we comment on the ability to turn on or off the graphical output. Graphics are enabled for this tutorial, but for efficiency purposes it is possible to avoid the production of figures; indeed, they are disabled by default in the library. In general, figures are created as .png files under a directory called <code>&lt;systemname&gt;-png</code> (<code>tutorial-png</code> in this case) from the current working directory. Inside, each analysis produces a specific directory with a timestamp, in order to simplify the identification of the results of multiple runs.</p>
+
+<h2 id="3-1-evolution">3.1 - Evolution</h2>
+
+<p>For the routines in this subsection, we are simply interested in computing the reachable set, either for finite time or infinite time evolution.</p>
+
+<h3 id="3-1-1-finite-time-evolution">3.1.1 - Finite time evolution</h3>
+
+<p>For this subsection, we refer to the <code>finite_time_upper_evolution</code> and <code>finite_time_lower_evolution</code> functions in the analysis file. Since they essentially differ only by the semantics used, we provide a <code>_finite_time_evolution</code> helper function that contains the bulk of the code for the interaction with the Ariadne library.</p>
+
+<p>The first step is the creation of a <code>HybridEvolver</code> object, which provides methods for finite time evolution:</p>
+
+<pre><code class="language-c++">HybridEvolver evolver(system);
+</code></pre>
+
+<p>where the <code>system</code> argument is the automaton to evolve. The system is stored before evolution in order to check the consistency of user-provided evolution <em>settings</em>. Such settings can be found in the <code>ImageSetHybridEvolverSettings</code> class in <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/hybrid_evolver-image.h?at=master">hybrid_evolver-image.h</a>. For each setting, a default value is provided; also, multiple setter methods are available when useful for a simpler assignment.</p>
+
+<p>The only mandatory setting in practice is the integration step size, which is set in this tutorial with:</p>
+
+<pre><code class="language-c++">evolver.settings().set_maximum_step_size(0.3);
+</code></pre>
+
+<p>Here the setting is called a <em>maximum</em> step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally halves the provided value until the value is acceptable. However, if the step size is reasonably small in respect to the dynamics, it is usually the case that a bounding box is identified with no halving.</p>
+
+<p>Another relevant setting is the <code>reference_enclosure_widths</code> which informs the evolver about a particular width value on each dimension of the continuous space; such width should be chosen as proportional to the accuracy required on the given dimension when discretizing the reachable set. Here an &ldquo;enclosure&rdquo; is a name for an evolution set at a given time, which can also be seen as a section of the flow tube. The reference widths are meant to be constant for a given system. The <code>maximum_enclosure_widths_ratio</code> setting is then multiplied with the reference widths to decide if an enclosure is too large in respect to a desired numerical accuracy. If <code>enable_premature_termination_on_enclosure_size</code> is enabled (enabled by default), then evolution is stopped: this is useful to terminate when the set becomes too large to provide meaningful data for analysis. If <code>enable_subdivisions</code> is enabled (disabled by default), evolution continues but the set is split into two enclosures of smaller size.</p>
+
+<p>The assignment of the verbosity is performed with</p>
+
+<pre><code>evolver.verbosity = verbosity;
+</code></pre>
+
+<p>where the default verbosity value is zero, i.e., no output is provided.</p>
+
+<p>As soon as the evolver is set up, we can perform finite-time evolution by computing the <em>orbit</em> of the automaton. To call the <code>HybridEvolver::orbit</code> method we need three arguments:</p>
+
+<ol>
+<li>The initial set expressed as a <em>localised</em> enclosure;</li>
+<li>The evolution limits in terms of maximum continuous time and maximum number of discrete transitions;</li>
+<li>The <em>semantics</em> for evolution.</li>
+</ol>
+
+<p>The initial set must be expressed as a localised enclosure, meaning a set paired with a discrete location. If we want to perform evolution for an initial set on two locations, like the one of the tutorial, we actually need to compute two separate orbits. In addition, the initial set that we provided is a hybrid constraint set. For these reasons, we provide the following code snippet for conversion:</p>
+
+<pre><code class="language-c++">HybridEvolver::EnclosureListType initial_enclosures;
+HybridBoxes initial_set_domain = initial_set.domain();
+for (HybridBoxes::const_iterator it = 
+  initial_set_domain.locations_begin(); 
+  it != initial_set_domain.locations_end(); 
+  ++it) {
+    if (!it-&gt;second.empty()) {
+      initial_enclosures.adjoin(HybridEvolver::EnclosureType(
+        it-&gt;first,Box(it-&gt;second.centre())));
+    }
+}
+</code></pre>
+
+<p>We remind here that code such as the above is not required when the initial set is already expressed as a <code>HybridEvolver::EnclosureType</code> instead.</p>
+
+<p>The evolution time is provided as a <code>HybridTime</code>, which is a pairing of a continuous time and a discrete time:</p>
+
+<pre><code class="language-c++">HybridTime evol_limits(30.0,8);
+</code></pre>
+
+<p>Here we say that hybrid evolution may progress until 30 seconds of evolution are reached, or until 8 events are fired, whichever condition is met first.</p>
+
+<p>Finally, the semantics in Ariadne is either <code>UPPER_SEMANTICS</code> or <code>LOWER_SEMANTICS</code>. Such difference essentially amounts to deciding whether a transition should be taken in the presence of approximations. Since Ariadne operates on over-approximated sets, if such a set partially crosses a guard, then it is not always decidable whether the exact set either completely crosses, partially crosses or does not cross at all. If that is the case, we want to provide two semantics of evolution: allow or disallow a spurious transition. In the first case of <em>upper semantics</em> we end up with an approximate reachable set which is a (possibly) unbounded over-approximation of the exact reachable set; in the second case of <em>lower semantics</em> instead we have a bounded over-approximation, where the bound is essentially the diameter of the flow tube. However, under lower semantics we may terminate evolution earlier, hence the over-approximation may be of a subset of the reachable set. In addition, lower semantics disallows subdivisions of a set, since in that case one of the two splits may not contain any point of the exact reachable set; if such split set then diverges in respect to the other split set, the bound on the over-approximation increases in an uncontrolled way.</p>
+
+<p>Let&rsquo;s call the orbit method for each of the enclosures and each of the semantics, adjoining the reach sets of a given semantics to a common <code>HybridEvolver::EnclosureListType</code> data structure:</p>
+
+<pre><code class="language-c++">HybridEvolver::EnclosureListType reach;
+for (HybridEvolver::EnclosureListType::const_iterator it = 
+  initial_enclosures.begin();
+  it != initial_enclosures.end(); 
+  ++it) {
+    HybridEvolver::OrbitType orbit = evolver.orbit(*it, 
+                    evol_limits, semantics);
+    reach.adjoin(upper_orbit.reach());
+}
+</code></pre>
+
+<p>If we choose a verbosity value of 1, then for each call to <code>orbit</code> we see a long sequence of log lines, where each line provides information on one continuous step of evolution, e.g.:</p>
+
+<pre><code>[e:1] #w=6 #r=210 s=2 ps=3.000000e-01 t=15.250000 d=1.954768e-01 ...
+</code></pre>
+
+<p>Let&rsquo;s identify some of these values:</p>
+
+<ul>
+<li>#w: the number of working sets, i.e., of sets to be processed; this number usually increases after a transition, especially if non-urgent, or after a subdivision;</li>
+<li>#r: the number of currently reached sets;</li>
+<li>t: the current time</li>
+<li>d: the diameter of the set</li>
+<li>l: the location</li>
+<li>c: the center of the set</li>
+<li>w: the width of the set on each dimension</li>
+<li>e: the list of previously fired events</li>
+</ul>
+
+<p>where the <code>[e:1]</code> prefix informs that this logging information is of verbosity level 1 for an evolver. Using a higher verbosity value would provide more detailed information, albeit with less clarity.</p>
+
+<p>Finally we can plot the list of enclosures for each reach set with these commands:</p>
+
+<pre><code class="language-c++">PlotHelper plotter(system.name());
+plotter.plot(upper_reach,&quot;upper_reach&quot;);
+</code></pre>
+
+<p>where without lack of generality we focus on the upper reach case.</p>
+
+<p>The <code>PlotHelper</code> class is a class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed with a single argument, which will be used as a prefix for the name of the directory containing the output files. The second argument to the <code>plot</code> method instead is a prefix for the filenames.</p>
+
+<p><img src="/img/upper-reach.png" alt="upper-reach" title="Finite time upper evolution" /></p>
+
+<p>In the figure above, the upper evolution of the system is shown. The horizontal axis is for the valve aperture coordinate $a$, while the vertical axis is for the water level coordinate $x$; the extreme values for each axis are displayed. In the general case of more than two system variables, Ariadne creates a figure for each pair of variables, ordered alphabetically. In this specific case, we see that the behavior of the system is cyclic (counterclockwise), with the following four phases:</p>
+
+<ol>
+<li>The valve is closed, $x$ falls (left part of the figure)</li>
+<li>The valve opens with a finite time, $x$ ultimately starts rising (bottom part)</li>
+<li>The valve is fully opened, $x$ rises (right part)</li>
+<li>The valve closes with a finite time, $x$ ultimately starts falling (top part)</li>
+</ol>
+
+<p>The top and bottom bands are due to non-determinism caused by the non-urgent transitions.</p>
+
+<p>On this matter, let us compare this figure with the one for lower semantics.</p>
+
+<p><img src="/img/lower-reach.png" alt="lower-reach" title="Finite time lower evolution" /></p>
+
+<p>In the case of lower semantics, sometimes the activation of a non-urgent transition is not decidable, due to the fact that only a part of the set performs the crossing. For that reason, a significant percentage of the sets is discarded. This situation is apparent from the thinner bands in respect to upper semantics. It can also be detected if we analyse the log output during evolution, where the number of working sets is significantly higher for upper semantics. Ultimately, given the initial set it is still possible to complete a full cycle even for lower semantics, but that result is not always guaranteed based on the numerical settings chosen.</p>
+
+<h3 id="3-1-2-infinite-time-evolution">3.1.2 - Infinite time evolution</h3>
+
+<p>For this subsection, we refer to the <code>infinite_time_outer_evolution</code> and <code>infinite_time_epsilon_lower_evolution</code> methods, which mostly differ by the semantics used. We will present these methods after discussion of the common part of the analysis procedure.</p>
+
+<p>In infinite time evolution, we perform a sequence of finite time evolutions until <em>convergence</em> is obtained, i.e., the reached set does not grow anymore between two evolutions. Since there is no guarantee that convergence is obtained for a given accuracy, or that convergence is possible for the system, we introduce a <em>bounding domain</em> expressed as a hybrid box:</p>
+
+<pre><code class="language-c++">HybridBoxes domain(system.state_space(),Box(2,0.0,1.0,4.5,9.0));
+</code></pre>
+
+<p>which corresponds to $0 \leq a \leq 1$ and $4.5 \leq x \leq 9$ for all locations.</p>
+
+<p>In addition, it is necessary to choose an <em>accuracy</em> setting, which is a non-negative number. First of all, the accuracy defines the amount of times we split the domain in order to discretise the space. This maximum splitting identifies a <em>grid</em> of rectangular <em>cells</em> aligned to the axes of the continuous space. Discretization is necessary in order to perform an efficient and effective identification of the termination condition for infinite time evolution (both in the outer and lower evolution). Such discretization is also used internally to automatically identify proper settings for the underlying finite time evolutions.</p>
+
+<p>For this reason, infinite time evolution is performed from a <code>HybridReachabilityAnalyser</code> class, which masks the internal use of evolver object(s). In order to construct an analyser, we issue:</p>
+
+<pre><code class="language-c++">HybridReachabilityAnalyser analyser(system,domain,accuracy);
+</code></pre>
+
+<p>where for the purposes of the tutorial we set</p>
+
+<pre><code class="language-c++">int accuracy = 5;
+</code></pre>
+
+<p>which means that the domain is split $2^5 = 32$ times its nominal amount for each dimension; since for zero accuracy we split the domain once, we end up with discretization cells of widths $1 / 64$ and $4.5 / 64$, respectively for $a$ and $x$.</p>
+
+<p>As with the evolver, an analyser can be configured with a verbosity. In particular, if the verbosity depth is sufficiently high, then the logging of the internal evolver methods is performed.</p>
+
+<p>In addition, an analyser has a <code>HybridReachabilityAnalyserSettings</code> object that can be accessed using <code>analyser.settings()</code>, as with the evolver case. However, most of these settings are used internally when performing verification on the system, hence they will not be discussed here. The only setting that has a significant relevance for the user is the <code>enable_lower_pruning</code> flag (true by default). For lower semantics only, the flag enables the elimination of overlapping trajectories, increasing the efficiency of the procedure. We remind here that for upper semantics we are not allowed to remove behaviors of the system. Such setting is not offered at the evolver level for a simple reason: the identification of the overlapping condition is more viable when we have a discretization of the continuous space, which is performed only at the analyser level. Finally, we should remark that pruning is performed stochastically, hence results may vary between different runs of the same method.</p>
+
+<p>Let us now present the methods discussed here: the calculation of the <em>outer reachability</em> $O$ and the <em>epsilon-lower reachability</em> $L_{\varepsilon}$ approximations of the exact reachable set $Re$:</p>
+
+<ul>
+<li>$O$ is an over-approximated set such that $O \supset Re$. Since we want to include any possible behaviors (i.e., trajectories) produced by the evolution of the system, upper semantics is used.</li>
+<li>$L_{\varepsilon}$ is an over-approximated set such that $\exists\, x \in Re \,\,s.t.\, || x - L_{\varepsilon}  || \leq \varepsilon $; in other terms, we guarantee that the approximation is within a bounded distance $\varepsilon$ to the reachable set. In order to guarantee such bound, lower semantics is used. Since lower semantics may cause early termination of the evolution, we have that $L_{\varepsilon}$ is an over-approximation of a <em>subset</em> of $Re$, which is different from an inner approximation $I$ such that $I \subset Re$.</li>
+</ul>
+
+<p>In order to compute $O$ in the <code>infinite_time_outer_evolution</code> function, we issue</p>
+
+<pre><code class="language-c++">HybridDenotableSet reach = analyser.outer_chain_reach(initial_set);
+</code></pre>
+
+<p>where a <code>HybridDenotableSet</code> is simply a set of cells, where each cell is enriched with the discrete location involved. Denotable sets in Ariadne are currently implemented though Binary Decision Diagrams for efficiency purposes.</p>
+
+<p>As usual, we can plot the resulting set using a <code>PlotHelper</code>, namely:</p>
+
+<pre><code class="language-c++">plotter.plot(reach,&quot;outer&quot;,accuracy);
+</code></pre>
+
+<p>Here we show that it is possible to provide an additional argument, given by an integer value, that is used to extend the filename. This option is useful during verification, where a progressive increase of the accuracy is performed until an answer is obtained. In that case, we are able to output several graphical files within the same directory, where each one is named uniquely based the accuracy used.</p>
+
+<p>Additionally, this variant of the plot method provides all the projections of the set on each location.</p>
+
+<p><img src="/img/outer-reach-5.png" alt="outer-reach" title="Infinite time outer evolution at accuracy 5" /></p>
+
+<p>In the figure above we can see the reached set, which can be compared with the one obtained for finite time evolution. The most relevant difference is that discretisations occur after <em>each transition</em> and after a given continuous evolution time; after such discretisation, the current set is compared with the set on the previous discretisation in order to identify if no cells are reached. A total of 16 discretisation are performed before this condition is met, as can be seen if we set a verbosity of 2. Discretisations necessarily increase the width of the flow tube, which is apparent on the right side of the figure: this is the section where the dynamics is the slowest, hence more discretisation events occur. The &ldquo;artifacts&rdquo; on the top right and bottom left corners of the figure are due to discretisation error; while quite relevant at accuracy 5, it can be shown for accuracy 7 to reduce their overall impact, thus shrinking to zero for infinite accuracy.</p>
+
+<p><img src="/img/outer-reach-7.png" alt="outer-reach-7" title="Infinite time outer evolution at accuracy 7" /></p>
+
+<p>Both discretised outer reach sets seem quite coarse in respect to the finite time evolution set. While this is the case for flow tubes with very small diameter, for large tubes the opposite holds: just look at the extreme value for $x$ for finite time: even if only one cycle has been performed, it is already higher than the result obtained for infinite time at accuracy 5. This is due to the fact that discretisation allows to efficiently split the set and work on smaller enclosures, which yield better bounds and consequently a tighter reached set overall. Splitting without discretisation is actually feasible, but it is less effective and more expensive from the computational viewpoint.
+Summarizing, discretisations enable manipulations of the flow tube that, while introducing over-approximations, improve the efficiency and effectiveness of the procedure for large flow tubes.</p>
+
+<p>The computation of the $\varepsilon$-lower approximation, along with the value of $\varepsilon$, is performed with</p>
+
+<pre><code class="language-c++">HybridDenotableSet reach;
+HybridFloatVector epsilon;
+make_lpair&lt;HybridDenotableSet,HybridFloatVector&gt;(reach,epsilon) = 
+                   analyser.epsilon_lower_chain_reach(initial_set);
+</code></pre>
+
+<p>Here we provide a value of $\varepsilon$ for each dimension, corresponding to the largest width of the flow tube for any trajectory of the evolution.</p>
+
+<p>The result of $L_{\varepsilon}$ for accuracy 5 is shown below:</p>
+
+<p><img src="/img/epsilon-lower-reach-5.png" alt="epsilon-lower-reach-5" title="Infinite time epsilon lower evolution at accuracy 5" /></p>
+
+<p>Compared with the corresponding outer evolution, we notice a significantly thinner reached set. The main reason is that the flow tube is <em>discretised separately</em>, instead of discretising and resuming from the discretised set. The motivation is that for lower semantics we cannot split the set, which would happen if we converted the set into cells. Consequently, the discretisation is &ldquo;kept on the side&rdquo; only to check whether the reached set passes through the same cells: if that is the case, we terminate the infinite-time evolution. As a result, the quality of the flow is roughly the same as that obtained using finite-time evolution with the same step size, plus the over-approximation error of projection onto a grid.</p>
+
+<p>As already discussed earlier, there are intrinsic advantages in the use of discretisation. First, we can provide a termination condition which is not rigorous but whose accuracy increasing with the accuracy setting. Second, we can perform pruning of the trajectories, as shown in the bottom part of the figure, where the subset of the trajectories introduces a &ldquo;hole&rdquo; in the flow tube. The tradeoff here is between computational efficiency and quality of results; keeping in mind that $L_{\varepsilon}$ allows to work with any subset of $Re$, holes are perfectly acceptable if we need to analyse only the extreme values of the set. The motivation for the upper part of the figure not having a hole is that the flow tubes are larger, i.e., there is more over-approximation error as already shown in the finite time case. The result is that the trajectories partially overlap.</p>
+
+<h2 id="3-2-verification">3.2 - Verification</h2>
+
+<p>Verification in Ariadne currently builds on top of infinite time evolution: the purpose is to analyse the reachable set of the system, rather than focus on a specific time window. Still, it is possible to use the methods described below to address finite time evolution: it suffices to compose the original system with an automaton featuring a single clock $T_1$ and an invariant $T_1 \leq T_{\max}$, where $T_{\max}$ is the desired time horizon. In this way, the new system is unable to progress after the time limit for the clock is reached.</p>
+
+<p>Reachability analysis can be easily used to perform <em>safety</em> verification: given a safe set, check whether the reachable set of a system is within it (positive answer) or without it (negative answer). Let us explain this concept using the following figure:</p>
+
+<p><img src="/img/safety-as-sets.png" alt="safety-as-sets" title="Safety verification expressed in terms of sets" /></p>
+
+<p>Here we have the same reachable set $Re$, with two different safe sets $S_1$ and $S_2$.</p>
+
+<p>On the left, we want to prove that $Re$ is safe in respect to $S_1$: to do that, we want to check if the outer approximation $O$ is such that $O \in S_1$; if that is the case, then also $Re \in S_1$ holds.</p>
+
+<p>On the right, we want to prove that $Re$ is unsafe in respect to $S_2$: to do that, we want to check if a point of the $\varepsilon$-lower approximation $L_{\varepsilon}$ is at least $\varepsilon$ away from $S_2$; if that is the case, then $Re$ is not inside $S_2$.</p>
+
+<p>Our verification routines can also be made <em>parametric</em>, where we identify one or more parameters of the system (i.e., <code>RealParameter</code> objects that appear in the system model) and provide intervals for their value. Then, we split those intervals and analyze the system for each of the boxes given by the splitting. In this way we have some information on the effect of varying these &ldquo;design&rdquo; parameters and possibly identify optimal values in respect to the verification objective.</p>
+
+<p>Let us now introduce the specification required by Ariadne to verify a system. Since safety verification relies on infinite time evolution, we first require a bounding domain as explained in the previous subsection. Secondarily, it is necessary to provide the safe set. In Ariadne such set is expressed as a <code>ConstraintSet</code> $f^{-1}\left(C\right)$, i.e., the pre-image of a box $C$ in respect to a vector function $f$. More in general, we can provide a <code>HybridConstraintSet</code> to supply different constraints for different locations. For this tutorial we want to describe a very simple safe set, hence we have defined a custom <code>getSafetyConstraint</code> function with the following body:</p>
+
+<pre><code class="language-c++">RealVariable a(&quot;a&quot;), x(&quot;x&quot;);
+List&lt;RealVariable&gt; varlist;
+varlist.append(a);
+varlist.append(x);
+RealExpression expr = x;
+List&lt;RealExpression&gt; consexpr;
+consexpr.append(expr);
+VectorFunction cons_f(consexpr,varlist);
+Box codomain(1,5.25,8.25);
+
+return HybridConstraintSet(system.state_space(),
+                           ConstraintSet(cons_f,codomain));
+</code></pre>
+
+<p>In practice, we build the list of variables in order to construct a vector function $f$ equal to $x$ (meaning the identity function on $x$), with a unidimensional $C = [5.25, 8.25]$ codomain. This is equivalent to say that the safe set $f^{-1}\left( C \right)$ is $[5.25, 8.25]$ itself. Finally, we extend the constraint set to the hybrid state space of the system.</p>
+
+<p>In order to perform verification, it is necessary to create a <code>Verifier</code> object:</p>
+
+<pre><code class="language-c++">Verifier verifier;
+</code></pre>
+
+<p>Differently from an evolver or an analyser, a verifier does not take the system as input. This is because in general we can verify more than one system, e.g., two systems for <em>dominance checking</em> routines (not covered in this tutorial). Instead, we provide a specific input object to the method, in the case of safety a <code>SafetyVerificationInput</code>:</p>
+
+<pre><code class="language-c++">SafetyVerificationInput verInput(system, initial_set, domain, 
+                                 safety_constraint);
+</code></pre>
+
+<p>in which we collect all the inputs common to safety verification methods.</p>
+
+<p>As the evolver and analyser, a verifier can be provided with a <code>verbosity</code> value that, if sufficiently high, exposes the analyser and ultimately the evolver log output.</p>
+
+<p>In terms of settings, the <code>VerifierSettings</code> of <a href="https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/verifier.h?at=master">verifier.h</a> contains the following:</p>
+
+<ul>
+<li><code>plot_results</code>: whether to plot reachability results at the analyser level; useful to check the actual reachable sets used for verification; defaults to false;</li>
+<li><code>enable_backward_refinement_for_safety_proving</code>: allows to refine results by also calculating reachability in the backwards direction, from the safe set to the initial set, in order to exclude points that can not reach the safe set; however, while introducing a relevant computational overhead, the effectiveness of the approach highly depends on the system model; as such, the setting defaults to false;</li>
+<li><code>maximum_parameter_depth</code>: a non-negative number, represents the number of splittings per parameter, for parametric verification; for example, 10 equals $2^{10} = 1024$ different subintervals for each parameter;</li>
+<li><code>use_param_midpoints_for_proving</code>: allows to prove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, but not formally rigorous: in order to say that the box is safe, all of its points must be safe; consequently, the library defaults this setting to false;</li>
+<li><code>use_param_midpoints_for_disproving</code>: allows to disprove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, and compared to the proving case the result is still correct: a single point in the box being unsafe makes the whole box unsafe; consequently, the library defaults this setting to true;</li>
+</ul>
+
+<p>Finally, a verifier has a <code>ttl</code> (i.e., &ldquo;time to live&rdquo;) value: the allowed time (in seconds) for a single verification attempt. This means that for parametric verification, the <code>ttl</code> value is enforced for each split box. For this tutorial, we choose:</p>
+
+<pre><code class="language-c++">verifier.ttl = 140;
+</code></pre>
+
+<h3 id="3-2-1-safety-verification">3.2.1 - Safety verification</h3>
+
+<p>In order to perform safety verification, it is sufficient to issue:</p>
+
+<pre><code class="language-c++">verifier.safety(verInput);
+</code></pre>
+
+<p>where the output of the method is a <code>tribool</code>, i.e., a three-valued logic type. This means that an <code>indeterminate</code> value is also possible, along with a <code>true</code> or <code>false</code> results. The reason is the following: the method starts by trying to verify the system with accuracy 0 and, if unsuccessful, it retries with accuracy 1, meaning that the discretisation cells are halved for each dimension. It continues to increase the accuracy until a <code>true</code> or <code>false</code> result is obtained or until the <code>ttl</code> deadline is hit, in that case returning <code>indeterminate</code>. In order to see detailed information on the verification procedure, a verbosity level of 2 or higher is recommended.</p>
+
+<h3 id="3-2-2-parametric-safety-verification">3.2.2 - Parametric safety verification</h3>
+
+<p>For the parametric case, we first need to introduce the parameters:</p>
+
+<pre><code class="language-c++">RealParameterSet parameters;
+parameters.insert(RealParameter(&quot;hmin&quot;,Interval(5.0,6.0)));
+parameters.insert(RealParameter(&quot;hmax&quot;,Interval(7.5,8.5)));
+</code></pre>
+
+<p>Here the parameters must necessarily be present in the system to verify. The existing values for the parameters will be replaced by the values obtained from the splitting of the <code>RealParameterSet</code>.</p>
+
+<p>For this tutorial, we want to set</p>
+
+<pre><code class="language-c++">verifier.settings().maximum_parameter_depth = 3;
+</code></pre>
+
+<p>meaning that we will have a splitting of the parameters space into a 8x8 grid.</p>
+
+<p>Now verification is performed with:</p>
+
+<pre><code class="language-c++">list&lt;ParametricOutcome&gt; results = verifier.parametric_safety(
+                                             verInput, parameters);
+</code></pre>
+
+<p>where each <code>ParametricOutcome</code> contains the values of the parameters along with the <code>tribool</code> verification outcome. If we use a verbosity of 1, we can see how the 8x8 = 64 parameter splits are progressively processed:</p>
+
+<pre><code class="language-c++">[v:1]  Split parameters set #1/64: values {{hmax@Real(8.125,8.25)},{hmin@Real(5.25,5.375)}}
+</code></pre>
+
+<p>while a verbosity of 2 shows the accuracy required for each set.</p>
+
+<p>Finally, we can actually plot the list of outcomes using the following:</p>
+
+<pre><code class="language-c++">plotter.plot(results,verifier.settings().maximum_parameter_depth);
+</code></pre>
+
+<p>which returns a figure for each couple of parameters.</p>
+
+<p><img src="/img/parametric-safety.png" alt="parametric-safety" title="Parametric safety verification results" /></p>
+
+<p>Since the parameters are ordered alphabetically, <code>hmax</code> is on the x-axis and <code>hmin</code> is on the y-axis. As intuition suggests, the system is safe (green) for low values of $h_{\max}$ and high values of $h_{\min}$ and unsafe (red) otherwise. The indeterminate (yellow) boxes are the result of an insufficient accuracy in respect to the chosen <code>ttl</code>. If we used a higher <code>maximum_parameter_depth</code>, then the yellow bands would grow thinner, yielding larger regions where a true or false value is identified.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+          <li>
+            <a href="http://www.ariadne-cps.org/index.xml" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          Maintained by <a href="http://www.di.univr.it/?ent=persona&id=6462&lang=en">Luca Geretti</a>
+          &nbsp;&bull;&nbsp;
+          2017
+
+            &nbsp;&bull;&nbsp;
+            Sponsored by the <a href="http://www.di.univr.it/?lang=en">University of Verona</a>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.30.2</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="http://www.ariadne-cps.org/js/main.js"></script>
+<script src="http://www.ariadne-cps.org/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.js" integrity="sha256-UplRCs9v4KXVJvVY+p+RSo5Q4ilAUXh7kpjyIP5odyc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe-ui-default.min.js" integrity="sha256-PWHOlUzc96pMc8ThwRIXPn8yH4NOLu42RQ0b9SpnpFk=" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+  </body>
+</html>
+

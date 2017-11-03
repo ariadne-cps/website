@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Luca Geretti</copyright>
-    <lastBuildDate>Fri, 21 Jul 2017 21:05:50 +0200</lastBuildDate>
+    <lastBuildDate>Wed, 11 Oct 2017 19:11:44 +0200</lastBuildDate>
     
 	<atom:link href="http://www.ariadne-cps.org/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Tutorial</title>
+      <link>http://www.ariadne-cps.org/tutorial/</link>
+      <pubDate>Wed, 11 Oct 2017 19:11:44 +0200</pubDate>
+      
+      <guid>http://www.ariadne-cps.org/tutorial/</guid>
+      <description>MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It is split into three sections:
+ Description of a simple system that will be used for the tutorial; Construction of a model for the system; Analysis of the model, in terms of both evolution and verification.  Ariadne currently uses a programmatic C++ approach to describe a model and analyse it.</description>
+    </item>
     
     <item>
       <title>Publications</title>
