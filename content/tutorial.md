@@ -500,13 +500,13 @@ where the `[e:1]` prefix informs that this logging information is of verbosity l
 Finally we can plot the list of enclosures for each reach set with these commands:
 
 ```c++
-PlotHelper plotter(system.name());
+PlotHelper plotter(system);
 plotter.plot(upper_reach,"upper_reach");
 ```
 
 where without lack of generality we focus on the upper reach case.
 
-The `PlotHelper` class is a class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed with a single argument, which will be used as a prefix for the name of the directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
+The `PlotHelper` class is a class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed from the system, which is essentially used to choose a proper name for the dedicated directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
 
 ![upper-reach](/img/upper-reach.png "Finite time upper evolution")
 
