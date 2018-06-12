@@ -16,6 +16,12 @@ The following papers are provided in descending order of publication and represe
 *Geretti, L.; Muradore, R.; Bresolin, D.; Fiorini, P.; Villa, T.;*    
 20th World Congress of the International Federation of Automatic Control (IFAC 2017), 9-14 July 2017, pg. 9248-9253, DOI: 10.1016/j.ifacol.2017.08.1287
 
+[<i class="fa fa-file-pdf-o"></i>](/pdf/collins-naw2016.pdf)
+[<i class="fa fa-book"></i>](/bib/collins-naw2016.bib)  
+**Model checking dynamical systems**  
+*Collins, P.*  
+Nieuw archief voor Wiskunde, Volume 5/17, Issue 3, Sep. 2016, pg. 214-220
+
 [<i class="fa fa-file-pdf-o"></i>](/pdf/benvenuti-ijrnc2014.pdf)
 [<i class="fa fa-book"></i>](/bib/benvenuti-ijrnc2014.bib)  
 **Assume-guarantee verification of nonlinear hybrid systems with Ariadne**  

@@ -8,25 +8,20 @@
   <title>Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical Systems</title>
   <meta property="og:title" content="Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical Systems" />
   <meta name="twitter:title" content="Ariadne: A C&#43;&#43; Library for Formal Verification of Cyber-Physical …" />
-  <meta name="description" content="These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12.
-Downloading the distribution First let&rsquo;s download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to clone the repository using the git version control software, or simply to download the repository as a package.
-Installing the dependencies For the Ubuntu installation, we will refer to packages available on Aptitude. The macOS installation instead will assume you are using the Brew package manager.">
-  <meta property="og:description" content="These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12.
-Downloading the distribution First let&rsquo;s download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to clone the repository using the git version control software, or simply to download the repository as a package.
-Installing the dependencies For the Ubuntu installation, we will refer to packages available on Aptitude. The macOS installation instead will assume you are using the Brew package manager.">
-  <meta name="twitter:description" content="These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12.
-Downloading the distribution First let&rsquo;s download the source distribution from …">
+  <meta name="description" content="We have added a new article from Pieter Collins in the publications section, discussing the origins of Ariadne and some of its design choices.">
+  <meta property="og:description" content="We have added a new article from Pieter Collins in the publications section, discussing the origins of Ariadne and some of its design choices.">
+  <meta name="twitter:description" content="We have added a new article from Pieter Collins in the publications section, discussing the origins of Ariadne and some of its design choices.">
   <meta name="author" content="Luca Geretti"/>
   <link href='http://www.ariadne-cps.org/img/ariadne.ico' rel='icon' type='image/x-icon'/>
   <meta property="og:image" content="http://www.ariadne-cps.org/img/ariadne.png" />
   <meta name="twitter:image" content="http://www.ariadne-cps.org/img/ariadne.png" />
   <meta name="twitter:card" content="summary" />
-  <meta property="og:url" content="http://www.ariadne-cps.org/installation/" />
+  <meta property="og:url" content="http://www.ariadne-cps.org/post/2018-06-12-article-model-checking/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Ariadne" />
 
   <meta name="generator" content="Hugo 0.37" />
-  <link rel="canonical" href="http://www.ariadne-cps.org/installation/" />
+  <link rel="canonical" href="http://www.ariadne-cps.org/post/2018-06-12-article-model-checking/" />
   <link rel="alternate" href="http://www.ariadne-cps.org/index.xml" type="application/rss+xml" title="Ariadne">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -169,9 +164,16 @@ Downloading the distribution First let&rsquo;s download the source distribution 
       <div class="container">
         <div class="row">
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            <div class="page-heading">
-              <h1>Installation</h1>
+            <div class="post-heading">
+              <h1>Added an article on model checking</h1>
                 
+                
+                  <span class="post-meta">
+  Posted on June 12, 2018
+  
+</span>
+
+
                 
             </div>
           </div>
@@ -186,107 +188,15 @@ Downloading the distribution First let&rsquo;s download the source distribution 
   <div class="row">
     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
       <article role="main" class="blog-post">
-        
-
-<p>These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12.</p>
-
-<h3 id="downloading-the-distribution">Downloading the distribution</h3>
-
-<p>First let&rsquo;s download the source distribution from <a href="https://bitbucket.org/ariadne-cps/release-1.0">https://bitbucket.org/ariadne-cps/release-1.0</a>. It is possible to <em>clone</em> the repository using the <em>git</em> version control software, or simply to <a href="https://bitbucket.org/ariadne-cps/release-1.0/downloads/">download</a> the repository as a package.</p>
-
-<h3 id="installing-the-dependencies">Installing the dependencies</h3>
-
-<p>For the Ubuntu installation, we will refer to packages available on Aptitude. The macOS installation instead will assume you are using the Brew package manager.</p>
-
-<p>The library dependencies of Ariadne are the following:</p>
-
-<h4 id="ubuntu">Ubuntu</h4>
-
-<p>Aptitude packages required: <code>cmake libboost-system-dev libboost-serialization-dev libboost-thread-dev libgtk2.0-dev libcairo2-dev libbdd-dev</code></p>
-
-<h4 id="macos">macOS</h4>
-
-<p>First, install Homebrew from <a href="http://brew.sh/">http://brew.sh/</a>. This operation will also ask to install the Command Line Developer Tools from the Apple Store. Such tools are also required to build the sources.</p>
-
-<p>The Homebrew packages required are: <code>cmake boost gtk cairo</code>, therefore issue</p>
-
-<pre><code>$ brew install cmake boost gtk cairo
-</code></pre>
-
-<p>No Buddy package is offered, hence you need to compile the library from <a href="https://sourceforge.net/projects/buddy/">https://sourceforge.net/projects/buddy/</a> :</p>
-
-<ol>
-<li>Download and extract the Buddy package</li>
-
-<li><p>From the extracted directory:</p>
-
-<pre><code>$ ./configure
-$ make
-$ make install
-</code></pre></li>
-</ol>
-
-<p>Optionally, if you want to build the documentation, you need Doxygen and a working Latex distribution (including the Math packages).</p>
-
-<h3 id="building-the-distribution">Building the distribution</h3>
-
-<p>The build system used is CMake. The compiler we tested the library under Ubuntu is g++, while for macOS is clang. To build the distribution in a clean way, it is preferable that you set up a build subdirectory from the root of the Ariadne director. For example:</p>
-
-<pre><code>$ mkdir build
-$ cd build
-</code></pre>
-
-<p>Then you can prepare the build environment:</p>
-
-<pre><code>$ cmake ..
-</code></pre>
-
-<p>At this point, if no error arises, you can build the distribution itself:</p>
-
-<pre><code>$ make
-</code></pre>
-
-<p>In particular, if you need to build the library only, you can issue</p>
-
-<pre><code>$ make ariadne
-</code></pre>
-
-<p>or if you want to build the tests along with the library, do</p>
-
-<pre><code>$ make tests
-</code></pre>
-
-<p>If the tests have been built, you can run the test suite for the library:</p>
-
-<pre><code>$ make test
-</code></pre>
-
-<p>where no error should appear.</p>
-
-<p>If you have correctly installed Doxygen and a Latex distribution and you want to build the documentation, you have to issue the following:</p>
-
-<pre><code>$ make doc
-</code></pre>
-
-<h3 id="installing-the-library-globally">Installing the library globally</h3>
-
-<p>To install the library globally, you must issue</p>
-
-<pre><code>$ make install
-</code></pre>
-
-<p>Depending on your machine, it may be necessary to use <code>sudo make install</code> instead, if you do not have privileges for writing into the corresponding include/ and lib/ directories.</p>
-
-<p>To find the installed library under Ubuntu, you may need to set the <code>LD_LIBRARY_PATH</code> variable in the .bashrc file:</p>
-
-<pre><code>export LD_LIBRARY_PATH=/usr/local/lib
-</code></pre>
-
-<p>To test the correctness of the global installation, you may copy the <code>tutorial/</code> example into any location of your file system and build it. The tutorial relies on Ariadne being present within system library and include directories.</p>
+        <p>We have added a new article from Pieter Collins in the <a href="http://www.ariadne-cps.org/publications/">publications</a> section, discussing the origins of Ariadne and some of its design choices.</p>
 
       </article>
 
       <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="http://www.ariadne-cps.org/post/2017-11-03-tutorial/" data-toggle="tooltip" data-placement="top" title="Tutorial">&larr; Previous Post</a>
+          </li>
         
         
       </ul>
