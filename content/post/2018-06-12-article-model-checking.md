@@ -1,5 +1,5 @@
 ---
-title: "Added an article on model checking"
+title: "Added an article on model checking dynamical systems"
 date: 2018-06-12T09:21:00+02:00
 draft: false
 ---
