@@ -7,10 +7,33 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Luca Geretti</copyright>
-    <lastBuildDate>Tue, 12 Jun 2018 09:21:00 +0200</lastBuildDate>
+    <lastBuildDate>Thu, 30 Aug 2018 14:43:59 +0200</lastBuildDate>
     
 	<atom:link href="http://www.ariadne-cps.org/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>GitHub migration commenced</title>
+      <link>http://www.ariadne-cps.org/post/2018-08-30-github-migration-commenced/</link>
+      <pubDate>Thu, 30 Aug 2018 14:43:59 +0200</pubDate>
+      
+      <guid>http://www.ariadne-cps.org/post/2018-08-30-github-migration-commenced/</guid>
+      <description>In order to get access to a wider open-source community and also to exploit better continuous integration services, we are migrating from GitBucket to GitHub.
+The new source site will become
+https://github.com/ariadne-cps
+with a new organization called ariadne-cps as part of the GitHub Education program.
+The original repositories on BitBucket will be removed as of October the 1st.
+There will be an additional news in the next few days to announce the completion of the migration process.</description>
+    </item>
+    
+    <item>
+      <title>Added a paper on verification of medical CPSs</title>
+      <link>http://www.ariadne-cps.org/post/2018-07-24-tcps/</link>
+      <pubDate>Tue, 24 Jul 2018 15:46:22 +0200</pubDate>
+      
+      <guid>http://www.ariadne-cps.org/post/2018-07-24-tcps/</guid>
+      <description>We have added a new article in the publications section regarding the use of the stable release of Ariadne for the verification of medical cyber-physical systems.</description>
+    </item>
     
     <item>
       <title>Added an article on model checking dynamical systems</title>
@@ -36,7 +59,8 @@
       <pubDate>Wed, 11 Oct 2017 19:11:44 +0200</pubDate>
       
       <guid>http://www.ariadne-cps.org/tutorial/</guid>
-      <description>MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It is split into three sections:
+      <description>MathJax.Hub.Config({ tex2jax: {inlineMath: [[&#39;$&#39;,&#39;$&#39;], [&#39;\\(&#39;,&#39;\\)&#39;]]} });   This tutorial has the purpose of providing detailed information for users of the library. It refers to the stable release-1.0 version.
+The tutorial is split into three sections:
  Description of a simple system that will be used for the tutorial; Construction of a model for the system; Analysis of the model, in terms of both evolution and verification.  Ariadne currently uses a programmatic C++ approach to describe a model and analyse it.</description>
     </item>
     
@@ -84,9 +108,8 @@ Since the evolution of a nonlinear hybrid system cannot be calculated exactly, A
       <pubDate>Sun, 09 Jul 2017 19:11:44 +0200</pubDate>
       
       <guid>http://www.ariadne-cps.org/installation/</guid>
-      <description>These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12.
-Downloading the distribution First let&amp;rsquo;s download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to clone the repository using the git version control software, or simply to download the repository as a package.
-Installing the dependencies For the Ubuntu installation, we will refer to packages available on Aptitude. The macOS installation instead will assume you are using the Brew package manager.</description>
+      <description>These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 18.04 and macOS 10.13. They specifically refer to the stable release-1.0 version of the library. In order to install the development version instead, you should download the code from https://bitbucket.org/ariadne-cps/development and follow the instructions from the corresponding README.md file.
+Downloading the distribution First let&amp;rsquo;s download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to clone the repository using the git version control software, or simply to download the repository as a package.</description>
     </item>
     
     <item>

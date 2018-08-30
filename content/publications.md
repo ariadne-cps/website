@@ -48,11 +48,11 @@ International Journal of Robust and Nonlinear Control, Volume 24, Issue 4, Mar. 
 *Nuzzo, P.; Sangiovanni-Vincentelli, A.L.; Bresolin, D.; Geretti, L.; Villa, T.*   
 Proceedings of the IEEE, Volume 103, Issue 11, 2015, pg. 2104-2132, DOI: 10.1109/JPROC.2015.2453253
 
-[<i class="fa fa-file-pdf-o"></i>](/pdf/bresolin-micpro2015.pdf)
-[<i class="fa fa-book"></i>](/bib/bresolin-micpro2015.bib)   
-**Formal verification of robotic surgery tasks by reachability analysis**  
-*Bresolin, D.; Geretti, L.; Muradore, R.; Fiorini, P.; Villa, T.*  
-Microprocessors and Microsystems, Volume 39, Issue 8, November 2015, pg. 836-842, DOI: 10.1016/j.micpro.2015.10.006
+[<i class="fa fa-file-pdf-o"></i>](/pdf/geraldes-tcps2018.pdf)
+[<i class="fa fa-book"></i>](/bib/geraldes-tcps2018.bib)   
+**Formal Verification of Medical CPS: a Laser Incision Case Study**  
+*Geraldes, A.; Geretti, L.; Bresolin, D.; Muradore, R.; Fiorini, P.; Mattos, L.M.; Villa, T.*  
+ACM Transactions on Cyber-Physical Systems, Volume 2, Issue 4, July 2018, 35:1-35:29, DOI: 10.1145/3140237
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/bresolin-iwcmc2011.pdf)
 [<i class="fa fa-book"></i>](/bib/bresolin-iwcmc2011.bib)   

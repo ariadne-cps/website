@@ -4,7 +4,7 @@ date: 2017-07-09T19:11:44+02:00
 draft: false
 ---
 
-These installation instructions have been tested on Ubuntu 16.04 and macOS 10.12. 
+These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 18.04 and macOS 10.13. They specifically refer to the stable *release-1.0* version of the library. In order to install the development version instead, you should download the code from https://bitbucket.org/ariadne-cps/development and follow the instructions from the corresponding README.md file.
 
 ### Downloading the distribution
 

@@ -12,7 +12,9 @@ MathJax.Hub.Config({
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-This tutorial has the purpose of providing detailed information for *users* of the library. It is split into three sections:
+This tutorial has the purpose of providing detailed information for *users* of the library. It refers to the stable *release-1.0* version.
+
+The tutorial is split into three sections:
 
   1. [Description of a simple system](#1-the-system) that will be used for the tutorial;
   2. [Construction of a model](#2-system-model-construction) for the system;
