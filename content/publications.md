@@ -52,7 +52,7 @@ Proceedings of the IEEE, Volume 103, Issue 11, 2015, pg. 2104-2132, DOI: 10.1109
 [<i class="fa fa-book"></i>](/bib/geraldes-tcps2018.bib)   
 **Formal Verification of Medical CPS: a Laser Incision Case Study**  
 *Geraldes, A.; Geretti, L.; Bresolin, D.; Muradore, R.; Fiorini, P.; Mattos, L.M.; Villa, T.*  
-ACM Transactions on Cyber-Physical Systems, Volume 2, Issue 4, July 2018, 35:1-35:29, DOI: 10.1145/3140237
+ACM Transactions on Cyber-Physical Systems, Volume 2, Issue 4, September 2018, 35:1-35:29, DOI: 10.1145/3140237
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/bresolin-iwcmc2011.pdf)
 [<i class="fa fa-book"></i>](/bib/bresolin-iwcmc2011.bib)   
