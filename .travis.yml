@@ -1,4 +1,4 @@
-language: generic
+language: cpp
 
 os: osx
 osx_image: xcode10
