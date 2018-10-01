@@ -3,6 +3,10 @@ language: generic
 os: osx
 osx_image: xcode10
 
+branches:
+  only:
+  - master
+
 before_install:
   - brew install hugo
   - npm install -g winston commander object-assign xml2js handlebars
