@@ -1,0 +1,13 @@
+os: osx
+osx_image: xcode10
+
+before_install:
+  - brew install hugo
+  - npm install -g winston commander object-assign xml2js handlebars
+  - git clone https://github.com/sourcey/moxygen
+script:
+  - export NODE_PATH=/usr/local/lib/node_modules
+  - cd moxygen
+  - bin/moxygen --anchors --groups --output=example/doc/api-%s.md example/xml 
+after_success:
+  - echo "Done"
