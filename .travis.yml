@@ -1,19 +1,31 @@
-language: cpp
+language: cpp 
 
 os: osx
 osx_image: xcode10
 
+sudo: required
+
 branches:
   only:
   - master
+  - ci
 
 before_install:
-  - brew install hugo
-  - npm install -g winston commander object-assign xml2js handlebars
-  - git clone https://github.com/sourcey/moxygen
+- brew install hugo doxygen
+- npm install -g winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist --save-dev
+- git clone https://github.com/sourcey/moxygen
+- git clone https://github.com/ariadne-cps/development ariadne
+
 script:
-  - export NODE_PATH=/usr/local/lib/node_modules
-  - cd moxygen
-  - bin/moxygen --anchors --groups --output=example/doc/api-%s.md example/xml 
+- export NODE_PATH=/usr/local/lib/node_modules
+- cd ariadne
+- mkdir build; cd build
+- cmake ..
+# - make doc
+- cd ../..
+- mkdir api-docs
+# - moxygen/bin/moxygen.js --anchors --groups --classes --output=api-docs/%s.md ariadne/docs/xml 
+- hugo
+
 after_success:
-  - echo "Done"
+- gulp deploy --user $FTP_USER --password $FTP_PASSWORD
