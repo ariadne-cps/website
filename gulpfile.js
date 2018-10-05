@@ -13,6 +13,5 @@ gulp.task('deploy', function() {
   });
   gulp.src(['public/**/*'])
     .pipe(conn.newer(remotePath))
-    .pipe(conn.dest(remotePath))
-    .pipe(conn.clean('/www.ariadne-cps.org/**/*','public/'));
+    .pipe(conn.dest(remotePath));
 });
