@@ -10,12 +10,6 @@ The following papers are provided in descending order of publication and represe
 
 ### Theory and implementation
 
-[<i class="fa fa-file-pdf-o"></i>](/pdf/geretti-ifac2017.pdf)
-[<i class="fa fa-book"></i>](/bib/geretti-ifac2017.bib)  
-**Parametric formal verification: the robotic paint spraying case study**  
-*Geretti, L.; Muradore, R.; Bresolin, D.; Fiorini, P.; Villa, T.;*    
-20th World Congress of the International Federation of Automatic Control (IFAC 2017), 9-14 July 2017, pg. 9248-9253, DOI: `10.1016/j.ifacol.2017.08.1287`
-
 [<i class="fa fa-file-pdf-o"></i>](/pdf/collins-naw2016.pdf)
 [<i class="fa fa-book"></i>](/bib/collins-naw2016.bib)  
 **Model checking dynamical systems**  
@@ -38,7 +32,7 @@ International Journal of Robust and Nonlinear Control, Volume 24, Issue 4, Mar. 
 [<i class="fa fa-book"></i>](/bib/zivanovic-cdc2010.bib)  
 **Numerical solutions to noisy systems**  
 *Zivanovic, S.; Collins, P.*  
-49th IEEE Conference on Decision and Control (CDC), pg. 798–803, Dec 2010
+49th IEEE Conference on Decision and Control (CDC), pg. 798–803, Dec 2010, DOI: `10.1109/CDC.2010.5717780`
 
 ### Usage of the library and applications 
 
