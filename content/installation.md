@@ -4,11 +4,11 @@ date: 2017-07-09T19:11:44+02:00
 draft: false
 ---
 
-These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 18.04 and macOS 10.13. They specifically refer to the stable *release-1.0* version of the library. In order to install the development version instead, you should download the code from https://bitbucket.org/ariadne-cps/development and follow the instructions from the corresponding README.md file.
+These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 18.04 and macOS 10.13. They specifically refer to the stable *release-1.0* version of the library. In order to install the development version instead, you should download the code from https://github.com/ariadne-cps/ariadne and follow the instructions from the corresponding README.md file.
 
 ### Downloading the distribution
 
-First let's download the source distribution from https://bitbucket.org/ariadne-cps/release-1.0. It is possible to *clone* the repository using the *git* version control software, or simply to [download](https://bitbucket.org/ariadne-cps/release-1.0/downloads/) the repository as a package.
+First let's download the source distribution from https://github.com/ariadne-cps/release-1.0. It is possible to *clone* the repository using the *git* version control software, or simply to [download](https://github.com/ariadne-cps/release-1.0/downloads/) the repository as a package.
 
 ### Installing the dependencies
 

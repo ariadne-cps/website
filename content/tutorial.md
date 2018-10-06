@@ -20,7 +20,7 @@ The tutorial is split into three sections:
   2. [Construction of a model](#2-system-model-construction) for the system;
   3. [Analysis of the model](#3-system-model-analysis), in terms of both evolution and verification.
 
-Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
+Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
 
 # 1 - The system
 
@@ -85,7 +85,7 @@ The costruction of an automaton can be summarised in these steps:
 
 In the following we provide the specific implementation for each of the three components of the [tank](#2-1-tank), [valve](#2-2-valve) and [controller](#2-3-controller), followed by a brief discussion on the final [composition](#2-4-composition) of the automata. Please note that the details on each operation will not be repeated for all components.
 
-All the code discussed here can be found in the [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master) file of the repository.
+All the code discussed here can be found in the [system.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/system.h) file of the repository.
 
 ## 2.1 - Tank
 
@@ -344,11 +344,11 @@ An important remark on the construction of the initial location for the `tank,va
 
 In this section we provide information on how to analyse a system, both in terms of [evolution](#3-1-evolution) and [verification](#3-2-verification).
 
-The first step is the preparation of an executable. For that reason, all the [examples](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/examples/?at=master) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
+The first step is the preparation of an executable. For that reason, all the [examples](https://github.com/ariadne-cps/release-1.0/tree/master/examples/) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
 
-In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/system.h?at=master). In addition, the analysis routines are kept in a dedicated [analysis.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/analysis.h?at=master) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
+In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/system.h). In addition, the analysis routines are kept in a dedicated [analysis.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/analysis.h) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
 
-But first of all let us examine the [tutorial.cc](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/tutorial/tutorial.cc?at=master) executable. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
+But first of all let us examine the [tutorial.cc](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/tutorial.cc) executable. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
 
 ```c++
 #include <ariadne.h>
@@ -412,7 +412,7 @@ The first step is the creation of a `HybridEvolver` object, which provides metho
 HybridEvolver evolver(system);
 ```
 
-where the `system` argument is the automaton to evolve. The system is stored before evolution in order to check the consistency of user-provided evolution *settings*. Such settings can be found in the `ImageSetHybridEvolverSettings` class in [hybrid_evolver-image.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/hybrid_evolver-image.h?at=master). For each setting, a default value is provided; also, multiple setter methods are available when useful for a simpler assignment.
+where the `system` argument is the automaton to evolve. The system is stored before evolution in order to check the consistency of user-provided evolution *settings*. Such settings can be found in the `ImageSetHybridEvolverSettings` class in [hybrid_evolver-image.h](https://github.com/ariadne-cps/release-1.0/tree/master/include/hybrid_evolver-image.h). For each setting, a default value is provided; also, multiple setter methods are available when useful for a simpler assignment.
 
 The only mandatory setting in practice is the integration step size, which is set in this tutorial with:
 
@@ -659,7 +659,7 @@ in which we collect all the inputs common to safety verification methods.
 
 As the evolver and analyser, a verifier can be provided with a `verbosity` value that, if sufficiently high, exposes the analyser and ultimately the evolver log output.
 
-In terms of settings, the `VerifierSettings` of [verifier.h](https://bitbucket.org/ariadne-cps/release-1.0/src/HEAD/include/verifier.h?at=master) contains the following:
+In terms of settings, the `VerifierSettings` of [verifier.h](https://github.com/ariadne-cps/release-1.0/tree/mastertree/master/include/verifier.h) contains the following:
 
   - `plot_results`: whether to plot reachability results at the analyser level; useful to check the actual reachable sets used for verification; defaults to false;
   - `enable_backward_refinement_for_safety_proving`: allows to refine results by also calculating reachability in the backwards direction, from the safe set to the initial set, in order to exclude points that can not reach the safe set; however, while introducing a relevant computational overhead, the effectiveness of the approach highly depends on the system model; as such, the setting defaults to false;
