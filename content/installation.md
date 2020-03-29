@@ -4,85 +4,125 @@ date: 2017-07-22T19:11:44+02:00
 draft: false
 ---
 
-These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 18.04 and macOS 10.13. They specifically refer to the stable *release-1.0* version of the library. In order to install the development version instead, you should download the code from https://github.com/ariadne-cps/ariadne and follow the instructions from the corresponding README.md file.
+These installation instructions have been tested on recent releases of Ubuntu and macOS, up to Ubuntu 20.04 and macOS 10.15. However, openSUSE Tumbleweed and Fedora release are known to be working when using their package managers. Windows installations are not supported yet.
 
 ### Downloading the distribution
 
-First let's download the source distribution from https://github.com/ariadne-cps/release-1.0. It is possible to *clone* the repository using the *git* version control software, or simply to [download](https://github.com/ariadne-cps/release-1.0/downloads/) the repository as a package.
+First let's download the source distribution from the GitHub [page](https://github.com/ariadne-cps/ariadne). It is possible to *clone* the repository using the *git* version control software, or simply to download the repository as a [package](https://github.com/ariadne-cps/ariadne/downloads/).
 
 ### Installing the dependencies
 
 For the Ubuntu installation, we will refer to packages available on Aptitude. The macOS installation instead will assume you are using the Brew package manager.
 
-The library dependencies of Ariadne are the following:
+The build system is CMake. The library is tested for compilation using gcc and clang.
 
-#### Ubuntu
-Aptitude packages required: `cmake libboost-system-dev libboost-serialization-dev libboost-thread-dev libgtk2.0-dev libcairo2-dev libbdd-dev`
+#### Dependencies
 
-#### macOS
+The only required library dependencies of Ariadne are GMP and MPFR. If you want to enable the graphical output you will require Cairo in order to save into png files. Finally, the Python bindings require the Python headers (either Python 2 or 3 are supported). In particular for Python, there is an internal Git submodule dependency on the header-only [pybind11](https://github.com/pybind/pybind11) library. Therefore in order to build the Python interface, Git must be installed even if Ariadne has been downloaded as an archive.
 
-First, install Homebrew from http://brew.sh/. This operation will also ask to install the Command Line Developer Tools from the Apple Store. Such tools are also required to build the sources.
+Finally, if you want to build the documentation, you need Doxygen and a working Latex distribution (including the Math packages).
 
-The Homebrew packages required are: `cmake boost gtk cairo`, therefore issue
+Please note that adding new dependencies after preparing the build environment requires to re-run the CMake command.
 
-    $ brew install cmake boost gtk cairo
+Specific instructions for Ubuntu and macOS follow.
 
-No Buddy package is offered, hence you need to compile the library from https://sourceforge.net/projects/buddy/ :
+##### Ubuntu
+Aptitude packages: `cmake pkg-config git libgmp-dev libmpfr-dev libcairo2-dev`
 
-1. Download and extract the Buddy package
-2. From the extracted directory:
+Additional package required for the Python interface: `python3-dev` or `python-dev`.
 
-    ```
-    $ ./configure
-    $ make
-    $ make install
-    ```
+Additional packages required for documentation: `doxygen doxygen-latex` 
 
-Optionally, if you want to build the documentation, you need Doxygen and a working Latex distribution (including the Math packages).
+##### macOS
+1. Install the Command Line Developer Tools (will also be asked when installing Homebrew) from the Apple Store
 
-### Building the distribution
+2. Install Homebrew from http://brew.sh/ . Homebrew packages required: `cmake git mpfr gmp cairo`
 
-The build system used is CMake. The compiler we tested the library under Ubuntu is g++, while for macOS is clang. To build the distribution in a clean way, it is preferable that you set up a build subdirectory from the root of the Ariadne director. For example:
+For Cairo support, you may need to set up a permanent variable for the path of pkgconfig by adding the following line in your `~\.bash_profile`:
 
-    $ mkdir build
-    $ cd build
+```
+export PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig
+```
 
-Then you can prepare the build environment:
+To allow building the documentation: `brew cask install mactex-no-gui` and `brew install doxygen`.
 
-    $ cmake ..
+#### Building
 
-At this point, if no error arises, you can build the distribution itself:
+To build the library in a clean way, it is preferable that you set up a build subdirectory:
 
-    $ make
-    
-In particular, if you need to build the library only, you can issue
+```
+$ mkdir build
+$ cd build
+```
 
-    $ make ariadne
-    
-or if you want to build the tests along with the library, do
+Then you can prepare the build environment, choosing a Release build for maximum performance:
 
-    $ make tests
+```
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+```
 
-If the tests have been built, you can run the test suite for the library:
+At this point, if no error arises, you can build the library itself:
 
-    $ make test
+```
+$ make ariadne
+```
+
+If you prefer to use the Python interface over the C++ library, you should build the Python module with:
+
+
+```
+$ make pyariadne
+```
+
+
+Optionally, you can also build and run the test suite for the library:
+
+```
+$ make tests
+$ make test
+```
 
 where no error should appear.
 
-If you have correctly installed Doxygen and a Latex distribution and you want to build the documentation, you have to issue the following:
+To build libraries, tests, examples and tutorials, simply type:
 
-    $ make doc
+```
+$ make
+```
 
-### Installing the library globally
+To build the documentation, instead use:
 
-To install the library globally, you must issue
+```
+$ make doc
+```
 
-    $ make install
+You can access the built documentation from the `docs/html/index.html` file in the build directory.
 
-Depending on your machine, it may be necessary to use `sudo make install` instead, if you do not have privileges for writing into the corresponding include/ and lib/ directories.
 
-To find the installed library under Ubuntu, you may need to set the `LD_LIBRARY_PATH` variable in the .bashrc file:
+### Installing globally
 
-    export LD_LIBRARY_PATH=/usr/local/lib
+To install the library globally, you must do
 
-To test the correctness of the global installation, you may copy the `tutorial/` example into any location of your file system and build it. The tutorial relies on Ariadne being present within system library and include directories.
+```
+$ make install
+```
+
+or
+
+```
+$ sudo make install
+```
+
+if you require administrator privileges, in particular for a Linux installation. Please note that the installation will build the whole distribution beforehand, hence it is preferable that you first build the binaries without administrator privileges, then install.
+
+To find the installed library under Ubuntu, you may need to set the LD\_LIBRARY\_PATH in the .bashrc file of your home directory:
+
+```
+export LD_LIBRARY_PATH=/usr/local/lib
+```
+
+### Building executables using Ariadne
+
+The tutorials directory contains two CMake projects that rely on a correct installation of Ariadne. You can copy a project directory in any place on your file system and follow the instructions on the README file inside to check that your installation was successful.
+
+Due to limitations of the C++ standard library on macOS since C++11, you won't be able to build an executable with GCC if the Ariadne library has been built using Clang, and viceversa. Hence on macOS you shall use the same compiler for both Ariadne and any projects that depend on it.
