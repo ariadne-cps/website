@@ -10,6 +10,11 @@ The following papers are provided in descending order of publication and represe
 
 ### Theory and implementation
 
+[<i class="fa fa-file-pdf-o"></i>](/pdf/zivanovic-jsc2020.pdf)
+**Higher Order Method for Differential Inclusions**  
+*Zivanovic, S.; Collins, P.; Geretti, L.; Bresolin, D.; Villa, T.*  
+Journal of Scientific Computing (submitted), 2020, pre-print [https://arxiv.org/abs/2001.11330] (https://arxiv.org/abs/2001.11330)
+
 [<i class="fa fa-file-pdf-o"></i>](/pdf/collins-naw2016.pdf)
 [<i class="fa fa-book"></i>](/bib/collins-naw2016.bib)  
 **Model checking dynamical systems**  
@@ -27,12 +32,6 @@ International Journal of Robust and Nonlinear Control, Volume 24, Issue 4, Mar. 
 **Computing the evolution of hybrid systems using rigorous function calculus**  
 *Collins, P.; Bresolin, D.; Geretti, L.; Villa, T.*  
 4th IFAC Conference on Analysis and Design of Hybrid Systems (ADHS'12), June 2012, pg. 284-290, DOI: `10.3182/20120606-3-NL-3011.00046`
-
-[<i class="fa fa-file-pdf-o"></i>](/pdf/zivanovic-cdc2010.pdf)
-[<i class="fa fa-book"></i>](/bib/zivanovic-cdc2010.bib)  
-**Numerical solutions to noisy systems**  
-*Zivanovic, S.; Collins, P.*  
-49th IEEE Conference on Decision and Control (CDC), pg. 798–803, Dec 2010, DOI: `10.1109/CDC.2010.5717780`
 
 ### Usage of the library and applications 
 
