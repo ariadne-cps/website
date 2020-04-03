@@ -19,7 +19,7 @@ The following papers are provided in descending order of publication and represe
 [<i class="fa fa-file-pdf"></i>](/pdf/zivanovic-jsc2020.pdf)   
 **Higher Order Method for Differential Inclusions**  
 *Zivanovic, S.; Collins, P.; Geretti, L.; Bresolin, D.; Villa, T.*  
-Journal of Scientific Computing (submitted), 2020, pre-print [https://arxiv.org/abs/2001.11330] (https://arxiv.org/abs/2001.11330)
+Journal of Scientific Computing (submitted), 2020, pre-print [https://arxiv.org/abs/2001.11330](https://arxiv.org/abs/2001.11330)
 
 [<i class="fa fa-file-pdf"></i>](/pdf/collins-naw2016.pdf)
 [<i class="fa fa-book"></i>](/bib/collins-naw2016.bib)  
