@@ -10,6 +10,12 @@ The following papers are provided in descending order of publication and represe
 
 ### Theory and implementation
 
+[<i class="fa fa-file-pdf-o"></i>](/pdf/bresolin-hscc2020.pdf)
+[<i class="fa fa-book"></i>](/bib/bresolin-hscc2020.bib)  
+**A computable and compositional semantics for hybrid automata**  
+*Bresolin, D.; Collins, P.; Geretti, L.; Segala, R.; Villa, T.; Zivanovic, S.*  
+23rd ACM International Conference on Hybrid Systems: Computation and Control (HSCC ’20), April 22-24, 2020, Sydney, Australia, DOI: `10.1145/ 3365365.3382202`
+
 [<i class="fa fa-file-pdf-o"></i>](/pdf/zivanovic-jsc2020.pdf)
 **Higher Order Method for Differential Inclusions**  
 *Zivanovic, S.; Collins, P.; Geretti, L.; Bresolin, D.; Villa, T.*  
@@ -20,12 +26,6 @@ Journal of Scientific Computing (submitted), 2020, pre-print [https://arxiv.org/
 **Model checking dynamical systems**  
 *Collins, P.*  
 Nieuw archief voor Wiskunde, Volume 5 / 17, Issue 3, Sep. 2016, pg. 214-220
-
-[<i class="fa fa-file-pdf-o"></i>](/pdf/benvenuti-ijrnc2014.pdf)
-[<i class="fa fa-book"></i>](/bib/benvenuti-ijrnc2014.bib)  
-**Assume-guarantee verification of nonlinear hybrid systems with Ariadne**  
-*Benvenuti, L; Bresolin, D.; Collins, P.; Ferrari, A.; Geretti, L.; Villa, T.*  
-International Journal of Robust and Nonlinear Control, Volume 24, Issue 4, Mar. 2014, pg. 699-724, ISSN: 1049-8923, DOI: `10.1002/RNC.2914`
 
 [<i class="fa fa-file-pdf-o"></i>](/pdf/collins-adhs2012.pdf)
 [<i class="fa fa-book"></i>](/bib/collins-adhs2012.bib)  
