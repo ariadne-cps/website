@@ -12,15 +12,15 @@ MathJax.Hub.Config({
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-This tutorial has the purpose of providing detailed information for *users* of the library. It refers to the stable *release-1.0* version.
+This tutorial has the purpose of providing detailed information for *users* of the library.
 
 The tutorial is split into three sections:
 
-  1. [Description of a simple system](#1-the-system) that will be used for the tutorial;
-  2. [Construction of a model](#2-system-model-construction) for the system;
-  3. [Analysis of the model](#3-system-model-analysis), in terms of both evolution and verification.
+  1. [Description of a simple system](#1---the-system) that will be used for the tutorial;
+  2. [Construction of a model](#2---system-model-construction) for the system;
+  3. [Evolution of the model](#3---system-model-evolution), in terms of simulation and finite/infinite time evolution.
 
-Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play with the example in order to better understand the behavior of the modeled system.
+Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://github.com/ariadne-cps/ariadne/tree/master/tutorials/hybrid_evolution) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play around with the example in order to better understand the behavior of the modeled system.
 
 # 1 - The system
 
@@ -28,700 +28,476 @@ Ariadne currently uses a programmatic C++ approach to describe a model and analy
 
 The system described for this tutorial is a *watertank* system. This example from hydrodynamics revolves around a tank component, which has a controlled input water flow and an output water flow. In particular, the input pressure $p$ is modulated by a valve to obtain the actual input $u$ to the tank. The controller acts in response to a reading $x_s$ of the actual water level $x$. The reading is affected by an uncertainty $\delta$.
 
-![watertank-block](/img/watertank-block.png "The watertank system block diagram")
+![watertank-block](/img/system.png "The watertank system block diagram")
 
-For our system model, we identify three components: the [tank](#1-1-tank-model), the [valve](#1-2-valve-model) and the [controller](#1-3-controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x\_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not support noise modeling in the stable release, hence we will provide an alternative system model that achieves a similar result. In addition, algebraic relations are not supported in the automata model of the stable release (while they are available in the development version).
+For our system model, we identify three components: the [tank](#11---tank-model), the [valve](#12---valve-model) and the [controller](#13---controller-model). In order to provide a model of the sensor, instead, we would need to be able to express the relation $x\_s(t) = x(t) + \delta$. This amounts to treating $\delta$ as a noise source. However, Ariadne currently does not yet support noise modeling for hybrid systems, hence we will provide an alternative system model that achieves a similar result.
 
 ## 1.1 - Tank model
 
-The model of the tank is simple, since it involves only one location, hereby called *flow*, with no transitions. The dynamics of the water level $x$ is the result of the effect of the output flow $\Phi\_o = -\alpha\, x $ and the input flow $\Phi\_i = \beta\, a$.
+The model of the tank is simple, since it involves only one location with no transitions. The dynamics of the water level $x$ is the result of the effect of the input flow $\Phi\_i = \beta a$ and output flow $\Phi\_o = -\alpha x $, with $\beta = 0.3$ and $\alpha = 0.02$. We are not forced to use a particular name for the location, if only one location is present.
 
-![tank-model](/img/tankmodel.png "The tank model")
-
-Here we choose a fixed value $\alpha = 0.02$, which is a function of hydrodynamic quantities including the outlet section area. On the other hand, we want to have $\beta \in [0.3,\, 0.32863]$, with the semantics that the input flow is a *fixed* value in that interval. The motivation behind the interval is that we want to study the behavior of the system for all the values in the interval, under the assumption that $\beta$ has a fixed but unknown value. Let us remark again that Ariadne does not currently support *differential inclusions*, which would allow $\beta$ to vary within the interval.
+![tank-model](/img/tank.png "The tank model")
 
 Please note that a more realistic expression for the output flow would require $\Phi\_o \propto \sqrt{x}$. However, this choice would have inherent numerical issues around $x = 0$ in the presence of over-approximations, in particular when discretizing the reachable set onto a grid. In order to allow some tweaking of the model parameters in Ariadne without incurring into numerical issues, we preferred to settle for a simplified expression for the tutorial.
 
 ## 1.2 - Valve model
 
-The model of the valve assumes that the valve opens or closes in a finite time $T = 4\, s$, with a linear opening or closing. Consequently we define two locations *opening* and *closing* in which the dynamics for the aperture $a$ is increasing or decreasing, respectively, with a rate equal to $\frac{1}{T}$. A third location *idle* instead models the valve being fully opened or fully closed, i.e., when $a$ is not allowed to vary.
+The model of the valve assumes that the valve opens or closes in a finite time $T = 4 s$, with a linear opening or closing. Consequently we define two locations *opening* and *closing* in which the dynamics for the aperture $a$ is increasing or decreasing, respectively, with a rate equal to $\frac{1}{T}$. A third and fourth locations *opened* and *closed* instead model the valve being fully opened or fully closed, i.e., when $a$ is fixed to a specific value.
 
-![valve-model](/img/valvemodel.png "The valve model")
+![valve-model](/img/valve.png "The valve model")
 
-Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *idle* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *idle* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *open* and *close*, which *synchronise* with other automata with the same labels. In this case, since no transition guard is defined, we say that *open* and *close* are *input transitions* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.
+Transitions between locations in this automaton are either *internal* or *external*. An internal transition is fired from *opening* to *opened* as soon as $a \geq 1$, since $a$ is not allowed to increase further. Similarly, an internal transition is fired from *closing* to *closed* as soon as $a \leq 0$, since $a$ is not allowed to decrease further. External transitions have associated *event labels*, such as *can_open* and *can_close*, which *synchronise* with other automata with the same labels. In this case, since no transition guard is defined, we say that *can_open* and *can_close* are *input events* for the valve automaton: such transitions will be taken when a corresponding output event is fired by another automaton.
 
 Invariants in the *opening* and *closing* locations are set as the complements of the guards, in order to model the fact that the transitions are *urgent*, i.e., if the trajectory reaches a point that satisfies a guard, then it is required to take the transition immediately.
 
 ## 1.3 - Controller model
 
-As discussed previously, the valve is receptive to an *open* and *close* commands. The controller is responsible for issuing such commands. In particular, for simplicity we want to have an *hysteretic* control such that we provide an *open* command when the water level is too low, or a *close* command when the water level is too high.
+As discussed previously, the valve is receptive to an *can_open* and *can_close* commands. The controller is responsible for issuing such commands. In particular, for simplicity we want to have an *hysteretic* control such that we provide an *can_open* command when the water level is too low, or a *can_close* command when the water level is too high.
  
-![controller-model](/img/controllermodel.png "The controller model")
+![controller-model](/img/controller.png "The controller model")
 
-Consequently, the automaton is characterised by two states: *rising*, when we are operating under the assumption that the water level is rising, and *falling*, then the assumption is the opposite one. 
+Consequently, the automaton is characterised by two states: *rising*, when we are operating under the assumption that the water level is rising, and *falling*, then the assumption is the opposite one. No dynamics are present, instead we provide invariants that establish when transitions *must* be taken (while guards establish when transitions *can* be taken).
 
-We define $h\_{\max} = 7.75$ meters and $h\_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h\_{\max}$ would trigger the *close* event, while a condition $x \leq h\_{\min}$ would trigger the *open* event. 
-However, in our model, we want to provide non-determinism by introducing *non-urgent* (or *permissive*) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the *open* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\min},\,h\_{\min}+\delta]$ interval. Similarly, the *close* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\max},\,h\_{\max}+\delta]$ interval.
+We define $h\_{\max} = 7.75$ meters and $h\_{\min} = 5.75$ meters as the acceptable thresholds for the water level. A condition $x \geq h\_{\max}$ would trigger the *can_close* event, while a condition $x \leq h\_{\min}$ would trigger the *can_open* event. 
+However, in our model, we want to provide non-determinism by introducing *non-urgent* (also called *permissive*) transitions. This is obtained by enlarging the intersection between a guard and its corresponding invariant: specifically, we enlarge by $2\, \delta$, with $\delta = 0.1$ meters. The result of such enlargement is that the transition corresponding to the *open* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\min},\,h\_{\min}+\delta]$ interval. Similarly, the *close* event is both taken and not taken for all $x$ values in the $\[-\delta+h\_{\max},\,h\_{\max}+\delta]$ interval.
 
 # 2 - System model construction
 
-In Ariadne, the construction of a C++ data structure that represents the described model is performed progressively: we start with an empty automaton and we proceed to "fill it" with locations and transitions.
-
-The formalism used internally by the library is that of Hybrid I/O Automata (see [this article](http://www.sciencedirect.com/science/article/pii/S0890540103000671) for reference). Essentially, in a hybrid I/O automaton variables and events have an I/O specification:
-
-  - *internal* if they are not visible outside the automaton;
-  - *output* if their dynamics are specified (variables) or they are fired (events) within the automaton;
-  - *input* if they are specified or fired from another automaton.
-
-The additional constraint given by the I/O character is not strictly necessary, yet it is useful to construct complex systems where the roles of each component are explicit. Consequently, this is the preferred syntax used for the specification of automata in Ariadne.
+In Ariadne, the construction of a C++ data structure that represents the described model is performed progressively: we start with an empty automaton and we proceed to enrich it with locations, dynamics and transitions.
 
 The costruction of an automaton can be summarised in these steps:
 
   1. An automaton object is created;
-  2. Variables and events are added with their I/O character;
-  3. Locations are added;
-  4. Dynamics and invariants are added, specifying the location;
+  2. Variables, locations and events are declared;
+  3. Dynamics involving variables are added to the automaton;
+  4. Invariants are added, specifying the location;
   5. Transitions are added, specifying the event, the source and target location, the guard and the reset.
 
-In the following we provide the specific implementation for each of the three components of the [tank](#2-1-tank), [valve](#2-2-valve) and [controller](#2-3-controller), followed by a brief discussion on the final [composition](#2-4-composition) of the automata. Please note that the details on each operation will not be repeated for all components.
+In the following we provide the specific implementation for each of the three components of the [tank](#21---tank), [valve](#22---valve) and [controller](#23---controller), followed by a brief discussion on the final [composition](#24---composition) of the automata. Please note that the details on each operation will not be repeated for all components.
 
-All the code discussed here can be found in the [system.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/system.h) file of the repository.
+All the code discussed here can be found in the main tutorial [file](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp) of the repository.
+
+For clarity of presentation, each component is wrapped into its own function that returns the automaton. This approach, while not required, is encouraged in order to maintain large systems, possibly even by using a dedicated header file for each component. 
 
 ## 2.1 - Tank
 
-The automaton can be constructed with the following instruction:
+The automaton can be constructed by starting with the following instruction:
 
-```c++
-HybridIOAutomaton tank("tank");
 ```
-where the argument string is useful for logging purposes. This is already a legal automaton, while still empty.
-
-Let us fill it with some behavior. First, we want to define the variables to use:
-
-```c++
-RealVariable a("a");
-RealVariable x("x");
+HybridAutomaton tank("tank");
 ```
 
-Please note that, since variables are shared within the system, their definition may be provided only once for all components, at the top of the definition file. Still, sharing is performed based on the string label, not on the C++ variable name. Consequently, there may exist multiple variable objects with different names but same label.
+where the argument string is optional but useful for logging purposes. This is already a legit automaton, while still empty.
 
-Variables need to be added to the automaton, specifying their I/O character:
+Let us fill it with some behavior. First, we want to define the variables used:
 
-```c++
-tank.add_input_var(a);
-tank.add_output_var(x);
+```
+RealVariable aperture("aperture");
+ RealVariable height("height");
 ```
 
-Now we want to define the location of the automaton:
+Now we introduce a location variable:
 
-```c++
-DiscreteLocation flow("flow");
+```
+DiscreteLocation flow;
 ```
 
-which is added to the automaton with
+Normally a location would have a string label, but as long as an automaton has only one location such label can be empty.
 
-```c++
-tank.new_mode(flow);
+Before defining the dynamics for the location, let us introduce some named constants for practical purposes:
+
+```
+RealConstant alpha("alpha",0.02_decimal);
+ RealConstant beta("beta",0.3_decimal);
 ```
 
-Now we can add dynamics for the location in respect to the automaton. But first, let us define some parameters:
+Here we notice how Ariadne requires to specify the type for non-integer literals: a floating point number is simply not accepted since in general it would be rounded to a value that depends on the architecture. It is not necessary to use named constants, since literals are accepted as well.
 
-```c++
-RealParameter alpha("alpha",0.02);
-RealParameter beta("beta",Interval(0.3,0.32863));
+Then, we add the location along with its dynamics with
+
+```
+automaton.new_mode(flow,{dot(height)=beta*aperture-alpha*height});
 ```
 
-where we use the `Interval` class to define an interval instead of a singleton value.
-
-Then, we add the dynamics with
-
-```c++
-tank.set_dynamics(flow, x, - alpha * x + beta * a);
-```
-
-An expression in Ariadne allows any nonlinear combination of variables, constants and parameters, along with the exp, log, sin, cos, tan and sqrt functions.
+where any nonlinear combination of variables, constants and literals is accepted.
 
 ## 2.2 - Valve
 
-We start construction of the valve automaton with
-
+First, we introduce a string variable that will hold the automaton name:
 ```
-HybridIOAutomaton valve("valve");
-```
-
-and add the only involved variable:
-
-```
-valve.add_output_var(a);
+StringVariable valve("valve");
 ```
 
-The three locations are then introduced and added using:
+Then we initialise the valve automaton with
 
 ```
-DiscreteLocation idle("idle");
-DiscreteLocation opening("opening");
-DiscreteLocation closing("closing");
-
-valve.new_mode(idle);
-valve.new_mode(opening);
-valve.new_mode(closing);
+HybridAutomaton automaton(valve.name());
 ```
-
-Before adding the corresponding dynamics, we set the parameter $T$:
+The motivation for this approach is that we can reuse the string variable to provide sensible labels to the four locations:
 
 ```
-RealParameter T("T",4.0);
+DiscreteLocation opening(valve|"opening");
+ DiscreteLocation closed(valve|"closed");
+ DiscreteLocation opened(valve|"opened");
+ DiscreteLocation closing(valve|"closing");
 ```
+This choice allows to prefix a location name, improving readability. The automaton name is independent and can take on any string value, including being empty.
 
-after which we define:
-
-```
-valve.set_dynamics(idle, a, 0.0);
-valve.set_dynamics(opening, a, 1.0/T);
-valve.set_dynamics(closing, a, -1.0/T);
-```
-
-Now we move to events, by starting from the introduction of the labels:
+Before adding the corresponding dynamics, we declare constants and variables:
 
 ```
-DiscreteEvent e_open("open");
-DiscreteEvent e_close("close");
-DiscreteEvent e_idle("idle");
+RealConstant T("T",4);
+
+ RealVariable aperture("aperture");
 ```
 
-We remind here that events, like variables, are shared between automata using their string labels, not their C++ variable names. 
+where we notice that constants with integer values can use builtin integers.
 
-To add the events to the automaton, we need to provide their I/O character:
-
-```
-valve.add_input_event(e_open);
-valve.add_input_event(e_close);
-valve.add_internal_event(e_idle);
-```
-
-While the *open* and *close* events must necessarily be specified as input, since they are not issued by the valve automaton, the *idle* event may be internal or output equivalently. Choosing an internal event is preferable for incapsulation purposes, when we do not need an event to be read by other components.
-
-For transitions, let's start with the simplest case: transitions without a guard or a reset. Such case arises from the presence of an input event, where the guard and reset for the transition are set by the automaton that fires the event itself.
-
-The syntax required becomes:
+Now we can define each *mode*, i.e. a location for the automaton to which we can attach algebraic/differential dynamics:
 
 ```
-valve.new_unforced_transition(e_open, idle, opening);
-valve.new_unforced_transition(e_close, idle, closing);
+automaton.new_mode(opened,{let(aperture)=1});
+ automaton.new_mode(closed,{let(aperture)=0});
+ automaton.new_mode(opening,{dot(aperture)=+1/T});
+ automaton.new_mode(closing,{dot(aperture)=-1/T});
 ```
+For differential equations we use *dot* of the variable, while for algebraic equations we use *let*. The curled parentheses are required since these are lists, in which the equations are separated with commas. In the case of a mix of algebraic and differential equations, each must be defined in its own list; the order of the two lists in `new_mode` is irrelevant.
 
-For such situation, we always consider the transition as *unforced* (i.e., non-urgent) for generality, in order to allow non-determinism depending on the actual guards and invariants. The first argument is the (input) event, the second is the *source* location and the third is the *target* location. In the case of self-loops, the target location can be equal to the source location.
-
-Let us now consider the case of internal/output transitions. First, we need to set the guards for the transitions:
-
-```
-RealExpression a_geq_one = a - 1.0;
-RealExpression a_leq_zero = - a;
-```
-
-Here we provide `RealExpression` variables for clarity, instead of directly using the expressions inline within the corresponding transitions. A guard expression $g$ is defined under a $g \geq 0$ assumption. Consequently, it may be necessary to rearrange terms to comply to the required convention. In our case, the two lines correspond to defining the guard expressions $a \geq 1$ and $a \leq 0$ respectively.
-
-To provide a reset, we need to define a variable-expression map instead:
+Before moving to transitions, let's declare the events. Note that both invariants and guards must be associated to an event.
 
 ```
-std::map<RealVariable,RealExpression> rst_a_one;
-rst_a_one[a] = 1.0;
-std::map<RealVariable,RealExpression> rst_a_zero;
-rst_a_zero[a] = 0.0;
+DiscreteEvent stop_opening("stop_opening");
+ DiscreteEvent stop_closing("stop_closing");
+ DiscreteEvent can_open("can_open");
+ DiscreteEvent can_close("can_close");
 ```
 
-We are providing two separate reset maps, applying to the only variable $a$. If there are multiple variables and one of them is reset, then for safe specification a reset for each variable is required: in that case, an identity expression such as `rst[x] = x;` can be used.
+Now it is possible to define transitions with the following argument format: source location, event, target location, reset map, guard predicate, event kind. 
 
-Now we can finally provide the transitions themselves:
+The event kind is an extra specification required to properly instruct the library on the nature of the transition, essentially by specifying if a transition is *urgent* or *permissive*. While being permissive is the conventional semantics for the activation of a transition, by defining a transition as urgent we implicitly define a corresponding complementary invariant with the same event name. This is necessary since checking that the intersection of the guard with the invariant has empty interior (i.e., the condition for urgency) is not possible in the general case. Such is the motivation for an explicit specification of the event kind.
+
+The only fields that are always present in the mode definition are the source/target location and the event label. The reset map must be omitted for a variable controlled by the automaton if the variable equation in the target location is algebraic (since it is already defined). Note that in all the other cases a reset must always be defined, even if it's the identity: this is due to the fact that in general more than one automaton may control the variable (each one on separate locations), therefore we can't assume to default to the identity map for a given automaton. The guard and event kind need to be omitted instead if the event is an input event, since those are defined in another automaton.
 
 ```
-valve.new_forced_transition(e_idle, opening, idle, rst_a_one, a_geq_one);
-valve.new_forced_transition(e_idle, closing, idle, rst_a_zero, a_leq_zero);
+automaton.new_transition(closed,can_open,opening,{next(aperture)=aperture});
+ automaton.new_transition(opening,stop_opening,opened,aperture>=1,EventKind::URGENT);
+ automaton.new_transition(opened,can_close,closing,{next(aperture)=aperture});
+ automaton.new_transition(closing,stop_closing,closed,aperture<=0,EventKind::URGENT);
 ```
-
-In this case, the transition is defined as *forced*, i.e., urgent. Using this specification, we are not required to provide invariants for the automaton: the invariant in a location is implicitly set as the complement of the union of the guard sets of outgoing transitions.
 
 ## 2.3 - Controller
 
-The construction of the controller for the system start with the usual
+The construction of the controller for the system involves the usual constants and variable declarations:
 
 ```
-HybridIOAutomaton controller("controller");
-```
-after which we can add the involved variables and events: 
+RealConstant hmin("hmin",5.75_decimal);
+ RealConstant hmax("hmax",7.75_decimal);
+ RealConstant delta("delta",0.02_decimal);
 
-```
-controller.add_input_var(x);
-
-controller.add_output_event(e_open);
-controller.add_output_event(e_close);
+ RealVariable height("height");
+ 
+ StringVariable controller("controller");
 ```
 
-Therefore, in opposition to the valve automaton, the controller "reads" a variable and "writes" events.
+and the automaton construction:
 
-The two locations are created and added in the usual way:
+```
+HybridAutomaton automaton(controller.name());
+```
+
+after which we can introduce the events: 
+
+```
+DiscreteEvent can_open("can_open");
+ DiscreteEvent can_close("can_close");
+ DiscreteEvent must_open("must_open");
+ DiscreteEvent must_close("must_close");
+```
+
+In opposition to the tank automaton, the controller "reads" the height variable; similarly, it "writes" the *can_open* and *can_close* events. The *must_open* and *must_close* events will be associated to invariants in order to define the $2\delta$ range of nondeterminism when starting the opening/closing of the valve.
+
+The two locations are defined in the usual way:
 
 ```
 DiscreteLocation rising("rising");
 DiscreteLocation falling("falling");
-
-controller.new_mode(rising);
-controller.new_mode(falling);
 ```
 
-Since no internal or output variable is present, we do not need to define any dynamics for this automaton.
-
-Moving to transitions, we want to provide two non-urgent transitions, hence we need to define proper guards and invariants. Let's start with defining some parameters:
+and the modes are created without dynamics, since the controller has none:
 
 ```
-RealParameter hmin("hmin",5.75);
-RealParameter hmax("hmax",7.75);
-RealParameter delta("delta",0.1);
-```
-which represent the lower threshold for the water level $h\_{\min}$, the corresponding upper threshold $h\_{\max}$, and the "radius" of non-determinism $\delta$.
-
-Let's define the invariant expressions for the locations:
-
-```
-RealExpression x_leq_hmax = x - hmax - delta;
-RealExpression x_geq_hmin = hmin - delta - x;
-```
-where Ariadne works under the assumption that an invariant expression $i$ allows evolution as long as $i \leq 0$; consequently, invariant expressions are complementary in respect to guards, where $g \geq 0$ must hold in order to allow leaving the location. In particular, the two expressions above correspond to $x \leq h\_{\max} + \delta$ and $x \geq h\_{\min} - \delta$, respectively.
-
-In order to add the invariants, we issue:
-
-```
-controller.new_invariant(rising, x_leq_hmax);
-controller.new_invariant(falling, x_geq_hmin);
+automaton.new_mode(rising);
+ automaton.new_mode(falling);
 ```
 
-It must be noted that, while only one guard per transition is allowed, we support multiple invariants per location.
-
-Guards are provided in the usual way:
+Then we associate invariants to modes with:
 
 ```
-RealExpression x_geq_hmax = x - hmax + delta;
-RealExpression x_leq_hmin = hmin + delta - x;
+automaton.new_invariant(falling,height>=hmin-delta,must_open);
+ automaton.new_invariant(rising,height<=hmax+delta,must_close);
 ```
-which correspond to $x \geq h\_{\max} - \delta$ and $x \leq h\_{\min} + \delta$, respectively.
 
-The transitions then become:
+where we see that we need to provide the location, the predicate and an event.
+
+Moving to transitions, we have the following:
 
 ```
-controller.new_unforced_transition(e_close, rising, falling, x_geq_hmax);
-controller.new_unforced_transition(e_open, falling, rising, x_leq_hmin);		
+automaton.new_transition(falling,can_open,rising,height<=hmin+delta,EventKind::PERMISSIVE);
+ automaton.new_transition(rising,can_close,falling,height>=hmax-delta,EventKind::PERMISSIVE);
 ```
-where we clearly need to specify that the transition is *unforced*. In this case, the transition *can* be fired for any point $x$ such that $i(x) \leq 0$ and $g(x) \geq 0$, i.e., for the intersection between the *invariant set* and the *guard set*. If we used a forced transition instead, the transition would be fired only in the intersection between the invariant set and the boundary of the guard set. 
+
+that are specified as permissive and no reset is involved since the automaton controls no variable. After composition, these transitions will supply the guard and event kind for the same event in the transitions of the valve automaton.
 
 Finally, we note how we necessarily omit the reset when no internal or output variable is present.
 
 ## 2.4 - Composition
 
-The Ariadne library currently supports only *horizontal* composition, meaning that two or more automata at the same level of abstraction can be composed to form a more complex automaton. Ariadne does not support vertical modularity in terms of different levels of abstraction and encapsulation. Consequently, we assume that all the automata are represented on a common "horizontal namespace" where all variable and event labels are shared.
+The Ariadne library currently supports only *horizontal* composition, meaning that two or more automata at the *same* level of abstraction can be composed to form a more complex automaton. Ariadne does not yet support vertical modularity in terms of different levels of abstraction and encapsulation. Consequently, we assume that all the automata are represented on a common "horizontal namespace" where all variable and event labels are shared.
 
-Composition is performed between a pair of automata and returns a new automaton which is the product of the original components. When multiple automata must be composed, a progressive sequence of compositions is issued until the product of all the components is performed. Since composition is commutative, the product order is irrelevant.
-
-In order to create the composed automaton of the tank and the valve:
+In order to create the composed automaton, it is as simple as this:
 
 ```
-HybridIOAutomaton tank_valve = compose("tank,valve",tank,valve,flow,idle);
+CompositeHybridAutomaton watertank_system({get_tank(),get_valve(),get_controller()});
 ```
 
-The first argument is the name of the new automaton. The second and third arguments are the components to use, while the fourth and fifth arguments represent the initial locations for each component. Specifying an initial location is required if we want to optimise the resulting system, by creating a product with the actual reachable locations: the choice of the initial location may influence the discrete reachability and consequently the complexity of the system.
+which creates an object that complies to the same interface as a hybrid automaton but internally holds the list of the components.
 
-The complete system is obtained with:
+It is possible to provide a system name as a first argument, again followed by the list of the automata.
+
+For efficiency purposes, actual composition is made dynamically during evolution, meaning that consistency of each location of the composition cannot be checked before evolution.
+
+
+# 3 - System model evolution
+
+In this section we provide information on how to analyse a system, in terms of [finite time simulation](#31---finite-time-simulation), [finite time rigorous evolution](#32---finite-time-rigorous-evolution) and [infinite time rigorous evolution](#33---infinite-time-rigorous-evolution).
+
+The first step is the preparation of an executable. Let us examine the tutorial [file](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp) from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
 
 ```
-HybridIOAutomaton system = compose("tutorial",tank_valve,controller,
-                                   DiscreteLocation("flow,idle"),rising);
-```
-
-Here the `tutorial` name ends up overwriting the previous `tank,valve` name, meaning that choosing a specific name for an intermediate automaton is inconsequential.
-
-An important remark on the construction of the initial location for the `tank,valve` component: the product between components implies that location names are combined, meaning that the order of components in the composition is relevant. However, please note that potential errors in the composition due to improper location naming are caught by the library during composition itself.
-
-# 3 - System model analysis
-
-In this section we provide information on how to analyse a system, both in terms of [evolution](#3-1-evolution) and [verification](#3-2-verification).
-
-The first step is the preparation of an executable. For that reason, all the [examples](https://github.com/ariadne-cps/release-1.0/tree/master/examples/) of the library have their own .cc file, usually paired with a .h file used to load the system under analysis.
-
-In this tutorial we follow the convention of having a separate system header file, namely [system.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/system.h). In addition, the analysis routines are kept in a dedicated [analysis.h](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/analysis.h) file. These choices can be simply considered best practice and are not part of the Ariadne library itself. Hence they will not be examined in detail: the focus of this section is the content of the analysis functions, which are discussed in the next subsections.
-
-But first of all let us examine the [tutorial.cc](https://github.com/ariadne-cps/release-1.0/tree/master/tutorial/tutorial.cc) executable. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
-
-```c++
 #include <ariadne.h>
 ```
 
-followed by adding the system and analysis headers:
+The content of the `main` function of the executable revolves around these steps:
 
-```c++
-#include "system.h"
-#include "analysis.h"
-```
+  1. Collect verbosity for runtime info;
+  2. Compose the system to analyse;
+  3. Print the system;
+  4. Simulate the system;
+  5. Construct an evolver;
+  6. Evolve the system;
+  7. Construct a reachability analyser;
+  8. Compute reachability.
 
-The content of the `main` function of the executable revolves around the collection of four items:
-
-  1. The system to analyse;
-  2. The initial set to use;
-  3. The verbosity for runtime info;
-  4. The flag for plotting graphical results.
-
-The system object is loaded with
-
-```c++
-HybridIOAutomaton system = Ariadne::getSystem();
-```
-
-using a custom function created in the system header. If we want to output the textual description of the system, we can issue:
-
-```c++
-cout << system << endl;
-```
-
-which provides a compact representation useful for debugging purposes. No graph-based output capabilities are currently available in the library.
-
-The initial set can be provided in different formats. For this tutorial we want to use a generic representation, i.e., a `HybridBoundedConstraintSet`. Such structure allows to specify a set for each location, thus allowing multiple initial sets. Namely:
-
-```c++
-HybridBoundedConstraintSet initial_set(system.state_space());
-initial_set[DiscreteLocation("flow,idle,rising")] = 
-            Box(2, 1.0,1.0, 6.0,7.5);
-initial_set[DiscreteLocation("flow,idle,falling")] = 
-            Box(2, 0.0,0.0, 6.0,7.5);
-```
-
-Here the first line constructs the set as empty, in the hybrid state space of the system. Then, we add sets for two specific locations. Specifically, we construct a `BoundedConstraintSet` from a simple `Box`, which is a coordinate-aligned set. In particular, the first argument of the constructor is the set dimension, while the remaining arguments are the lower and upper bounds for each variable, in alphabetical order. In other words, the continuous set is $\\{a = 1 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,rising* location and $\\{a = 0 \, \land \, 6 \leq x \leq 7.5 \\}$ in the *flow,idle,falling* location.
-
-The verbosity is a non-negative value that allows to show textual runtime information down to a given depth: the higher the value, the lower the depth. In particular, the current depth is prefix to each textual line. Since only a global verbosity variable exists, it is currently not possible to display information exclusively at a specific depth.
-
-Finally, we comment on the ability to turn on or off the graphical output. Graphics are enabled for this tutorial, but for efficiency purposes it is possible to avoid the production of figures; indeed, they are disabled by default in the library. In general, figures are created as .png files under a directory called `<systemname>-png` (`tutorial-png` in this case) from the current working directory. Inside, each analysis produces a specific directory with a timestamp, in order to simplify the identification of the results of multiple runs.
-
-## 3.1 - Evolution
-
-For the routines in this subsection, we are simply interested in computing the reachable set, either for finite time or infinite time evolution.
-
-### 3.1.1 - Finite time evolution
-
-For this subsection, we refer to the `finite_time_upper_evolution` and `finite_time_lower_evolution` functions in the analysis file. Since they essentially differ only by the semantics used, we provide a `_finite_time_evolution` helper function that contains the bulk of the code for the interaction with the Ariadne library.
-
-The first step is the creation of a `HybridEvolver` object, which provides methods for finite time evolution:
-
-```c++
-HybridEvolver evolver(system);
-```
-
-where the `system` argument is the automaton to evolve. The system is stored before evolution in order to check the consistency of user-provided evolution *settings*. Such settings can be found in the `ImageSetHybridEvolverSettings` class in [hybrid_evolver-image.h](https://github.com/ariadne-cps/release-1.0/tree/master/include/hybrid_evolver-image.h). For each setting, a default value is provided; also, multiple setter methods are available when useful for a simpler assignment.
-
-The only mandatory setting in practice is the integration step size, which is set in this tutorial with:
-
-```c++
-evolver.settings().set_maximum_step_size(0.3);
-```
-
-Here the setting is called a *maximum* step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally halves the provided value until the value is acceptable. However, if the step size is reasonably small in respect to the dynamics, it is usually the case that a bounding box is identified with no halving.
-
-Another relevant setting is the `reference_enclosure_widths` which informs the evolver about a particular width value on each dimension of the continuous space; such width should be chosen as proportional to the accuracy required on the given dimension when discretizing the reachable set. Here an "enclosure" is a name for an evolution set at a given time, which can also be seen as a section of the flow tube. The reference widths are meant to be constant for a given system. The `maximum_enclosure_widths_ratio` setting is then multiplied with the reference widths to decide if an enclosure is too large in respect to a desired numerical accuracy. If `enable_premature_termination_on_enclosure_size` is enabled (enabled by default), then evolution is stopped: this is useful to terminate when the set becomes too large to provide meaningful data for analysis. If `enable_subdivisions` is enabled (disabled by default), evolution continues but the set is split into two enclosures of smaller size.
-
-The assignment of the verbosity is performed with
+Verbosity is obtain from the command line by running the executable with a `-v <value>` flag, e.g.:
 
 ```
-evolver.verbosity = verbosity;
+> tutorials/hybrid_evolution_tutorial -v 1
 ```
 
-where the default verbosity value is zero, i.e., no output is provided.
+where the value should be positive; the verbosity defaults to zero if no flag is supplied.
 
-As soon as the evolver is set up, we can perform finite-time evolution by computing the *orbit* of the automaton. To call the `HybridEvolver::orbit` method we need three arguments:
-
-  1. The initial set expressed as a *localised* enclosure;
-  2. The evolution limits in terms of maximum continuous time and maximum number of discrete transitions;
-  3. The *semantics* for evolution.
-
-The initial set must be expressed as a localised enclosure, meaning a set paired with a discrete location. If we want to perform evolution for an initial set on two locations, like the one of the tutorial, we actually need to compute two separate orbits. In addition, the initial set that we provided is a hybrid constraint set. For these reasons, we provide the following code snippet for conversion:
-
-```c++
-HybridEvolver::EnclosureListType initial_enclosures;
-HybridBoxes initial_set_domain = initial_set.domain();
-for (HybridBoxes::const_iterator it = 
-  initial_set_domain.locations_begin(); 
-  it != initial_set_domain.locations_end(); 
-  ++it) {
-    if (!it->second.empty()) {
-      initial_enclosures.adjoin(HybridEvolver::EnclosureType(
-        it->first,Box(it->second.centre())));
-    }
-}
-```
-
-We remind here that code such as the above is not required when the initial set is already expressed as a `HybridEvolver::EnclosureType` instead.
-
-The evolution time is provided as a `HybridTime`, which is a pairing of a continuous time and a discrete time:
-
-```c++
-HybridTime evol_limits(30.0,8);
-```
-
-Here we say that hybrid evolution may progress until 30 seconds of evolution are reached, or until 8 events are fired, whichever condition is met first.
-
-Finally, the semantics in Ariadne is either `UPPER_SEMANTICS` or `LOWER_SEMANTICS`. Such difference essentially amounts to deciding whether a transition should be taken in the presence of approximations. Since Ariadne operates on over-approximated sets, if such a set partially crosses a guard, then it is not always decidable whether the exact set either completely crosses, partially crosses or does not cross at all. If that is the case, we want to provide two semantics of evolution: allow or disallow a spurious transition. In the first case of *upper semantics* we end up with an approximate reachable set which is a (possibly) unbounded over-approximation of the exact reachable set; in the second case of *lower semantics* instead we have a bounded over-approximation, where the bound is essentially the diameter of the flow tube. However, under lower semantics we may terminate evolution earlier, hence the over-approximation may be of a subset of the reachable set. In addition, lower semantics disallows subdivisions of a set, since in that case one of the two splits may not contain any point of the exact reachable set; if such split set then diverges in respect to the other split set, the bound on the over-approximation increases in an uncontrolled way.
-
-Let's call the orbit method for each of the enclosures and each of the semantics, adjoining the reach sets of a given semantics to a common `HybridEvolver::EnclosureListType` data structure:
-
-```c++
-HybridEvolver::EnclosureListType reach;
-for (HybridEvolver::EnclosureListType::const_iterator it = 
-  initial_enclosures.begin();
-  it != initial_enclosures.end(); 
-  ++it) {
-    HybridEvolver::OrbitType orbit = evolver.orbit(*it, 
-                    evol_limits, semantics);
-    reach.adjoin(upper_orbit.reach());
-}
-```
-
-If we choose a verbosity value of 1, then for each call to `orbit` we see a long sequence of log lines, where each line provides information on one continuous step of evolution, e.g.:
+We compose the system with
 
 ```
-[e:1] #w=6 #r=210 s=2 ps=3.000000e-01 t=15.250000 d=1.954768e-01 ...
+CompositeHybridAutomaton watertank_system({get_tank(),get_valve(),get_controller()});
 ```
 
-Let's identify some of these values:
+in which within the list we call the automaton construction functions to return the automata objects.
 
-  - \#w: the number of working sets, i.e., of sets to be processed; this number usually increases after a transition, especially if non-urgent, or after a subdivision;
-  - \#r: the number of currently reached sets;
-  - t: the current time
-  - d: the diameter of the set
-  - l: the location
-  - c: the center of the set
-  - w: the width of the set on each dimension
-  - e: the list of previously fired events
+The system can be printed directly on the standard output, but before that we change the default writer class into one that gives a compact representation:
 
-where the `[e:1]` prefix informs that this logging information is of verbosity level 1 for an evolver. Using a higher verbosity value would provide more detailed information, albeit with less clarity.
-
-Finally we can plot the list of enclosures for each reach set with these commands:
-
-```c++
-PlotHelper plotter(system);
-plotter.plot(upper_reach,"upper_reach");
+```
+CompositeHybridAutomaton::set_default_writer(new CompactCompositeHybridAutomatonWriter());
+ std::cout << "System: " << watertank_system << std::endl;
 ```
 
-where without lack of generality we focus on the upper reach case.
+In the following we detail the implementation for the three evolutions. For a better understanding of the required code, each evolution routine in the tutorial file contains all the necessary variables and calls. However, the code will be commented below only once, hence we suggest to follow the tutorial in order.
 
-The `PlotHelper` class is a class able to plot the most relevant graphical outputs used by Ariadne routines. It is constructed from the system, which is essentially used to choose a proper name for the dedicated directory containing the output files. The second argument to the `plot` method instead is a prefix for the filenames.
+## 3.1 - Finite time simulation
 
-![upper-reach](/img/upper-reach.png "Finite time upper evolution")
+Within the `simulate_evolution` function we provide the code for simulating the system, i.e., returning a single trajectory obtained by joining evolution points obtained via approximation.
 
-In the figure above, the upper evolution of the system is shown. The horizontal axis is for the valve aperture coordinate $a$, while the vertical axis is for the water level coordinate $x$; the extreme values for each axis are displayed. In the general case of more than two system variables, Ariadne creates a figure for each pair of variables, ordered alphabetically. In this specific case, we see that the behavior of the system is cyclic (counterclockwise), with the following four phases:
+The integrator used to evolve the system in the continuous space relies on the classic Runge-Kutta method.
 
-  1. The valve is closed, $x$ falls (left part of the figure)
-  2. The valve opens with a finite time, $x$ ultimately starts rising (bottom part)
-  3. The valve is fully opened, $x$ rises (right part)
-  4. The valve closes with a finite time, $x$ ultimately starts falling (top part)
+First, we instantiate the simulator:
 
-The top and bottom bands are due to non-determinism caused by the non-urgent transitions. 
-
-On this matter, let us compare this figure with the one for lower semantics.
-
-![lower-reach](/img/lower-reach.png "Finite time lower evolution")
-
-In the case of lower semantics, sometimes the activation of a non-urgent transition is not decidable, due to the fact that only a part of the set performs the crossing. For that reason, a significant percentage of the sets is discarded. This situation is apparent from the thinner bands in respect to upper semantics. It can also be detected if we analyse the log output during evolution, where the number of working sets is significantly higher for upper semantics. Ultimately, given the initial set it is still possible to complete a full cycle even for lower semantics, but that result is not always guaranteed based on the numerical settings chosen.
-
-### 3.1.2 - Infinite time evolution
-
-For this subsection, we refer to the `infinite_time_outer_evolution` and `infinite_time_epsilon_lower_evolution` methods, which mostly differ by the semantics used. We will present these methods after discussion of the common part of the analysis procedure.
-
-In infinite time evolution, we perform a sequence of finite time evolutions until *convergence* is obtained, i.e., the reached set does not grow anymore between two evolutions. Since there is no guarantee that convergence is obtained for a given accuracy, or that convergence is possible for the system, we introduce a *bounding domain* expressed as a hybrid box:
-
-```c++
-HybridBoxes domain(system.state_space(),Box(2,0.0,1.0,4.5,9.0));
 ```
-which corresponds to $0 \leq a \leq 1$ and $4.5 \leq x \leq 9$ for all locations.
-
-In addition, it is necessary to choose an *accuracy* setting, which is a non-negative number. First of all, the accuracy defines the amount of times we split the domain in order to discretise the space. This maximum splitting identifies a *grid* of rectangular *cells* aligned to the axes of the continuous space. Discretization is necessary in order to perform an efficient and effective identification of the termination condition for infinite time evolution (both in the outer and lower evolution). Such discretization is also used internally to automatically identify proper settings for the underlying finite time evolutions.
-
-For this reason, infinite time evolution is performed from a `HybridReachabilityAnalyser` class, which masks the internal use of evolver object(s). In order to construct an analyser, we issue:
-
-```c++
-HybridReachabilityAnalyser analyser(system,domain,accuracy);
+HybridSimulator simulator;
+ simulator.set_step_size(0.01);
+ simulator.verbosity = log_verbosity;
 ```
 
-where for the purposes of the tutorial we set
+which can only take a step size. For numerical settings in general we accept double-precision values, since an undefined rounding of these values does not affect the correctness of the result (while the value of a constant affects the behavior of a system instead). Also, verbosity is assigned to the simulator. That's all for the configuration of a simulator object, which is very simple.
 
-```c++
-int accuracy = 5;
+Then we define the initial point for simulation:
+
+```
+HybridRealPoint initial_point({valve|opened,controller|rising},{height=7});
 ```
 
-which means that the domain is split $2^5 = 32$ times its nominal amount for each dimension; since for zero accuracy we split the domain once, we end up with discretization cells of widths $1 / 64$ and $4.5 / 64$, respectively for $a$ and $x$.
+in which we assume, similarly to automaton definition, that the variables and string constants required have been declared earlier in the function. Here we see that we define the location for a composite system by creating a list of location names, where the order is irrelevant. This location is paired with a real point, which is given by another list of values for each differential variable (therefore the aperture is not supplied, since it is algebraic in the given location).
 
-As with the evolver, an analyser can be configured with a verbosity. In particular, if the verbosity depth is sufficiently high, then the logging of the internal evolver methods is performed.
+Along with the initial point, we must define the termination criterion:
 
-In addition, an analyser has a `HybridReachabilityAnalyserSettings` object that can be accessed using `analyser.settings()`, as with the evolver case. However, most of these settings are used internally when performing verification on the system, hence they will not be discussed here. The only setting that has a significant relevance for the user is the `enable_lower_pruning` flag (true by default). For lower semantics only, the flag enables the elimination of overlapping trajectories, increasing the efficiency of the procedure. We remind here that for upper semantics we are not allowed to remove behaviors of the system. Such setting is not offered at the evolver level for a simple reason: the identification of the overlapping condition is more viable when we have a discretization of the continuous space, which is performed only at the analyser level. Finally, we should remark that pruning is performed stochastically, hence results may vary between different runs of the same method.
-
-Let us now present the methods discussed here: the calculation of the *outer reachability* $O$ and the *epsilon-lower reachability* $L\_{\varepsilon}$ approximations of the exact reachable set $Re$:
-
-  - $O$ is an over-approximated set such that $O \supset Re$. Since we want to include any possible behaviors (i.e., trajectories) produced by the evolution of the system, upper semantics is used.
-  - $L_{\varepsilon}$ is an over-approximated set such that $\exists\, x \in Re \,\,s.t.\, || x - L\_{\varepsilon}  || \leq \varepsilon $; in other terms, we guarantee that the approximation is within a bounded distance $\varepsilon$ to the reachable set. In order to guarantee such bound, lower semantics is used. Since lower semantics may cause early termination of the evolution, we have that $L\_{\varepsilon}$ is an over-approximation of a *subset* of $Re$, which is different from an inner approximation $I$ such that $I \subset Re$.
-
-In order to compute $O$ in the `infinite_time_outer_evolution` function, we issue
-
-```c++
-HybridDenotableSet reach = analyser.outer_chain_reach(initial_set);
 ```
-where a `HybridDenotableSet` is simply a set of cells, where each cell is enriched with the discrete location involved. Denotable sets in Ariadne are currently implemented though Binary Decision Diagrams for efficiency purposes.
-
-As usual, we can plot the resulting set using a `PlotHelper`, namely:
-
-```c++
-plotter.plot(reach,"outer",accuracy);
+HybridTerminationCriterion termination(30,5);
 ```
 
-Here we show that it is possible to provide an additional argument, given by an integer value, that is used to extend the filename. This option is useful during verification, where a progressive increase of the accuracy is performed until an answer is obtained. In that case, we are able to output several graphical files within the same directory, where each one is named uniquely based the accuracy used.
+A hybrid termination criterion can involve three criteria: a maximum continuous time, a maximum discrete time (i.e., number of transitions), and a set of discrete events. The semantics is such that as soon as one criterion is hit, evolution stops. In particular, for the discrete events, evolution stops as soon as a transition associated with one of the provided events is triggered. In our specific case we want to enforce termination after either 30 seconds or 5 transitions.
 
-Additionally, this variant of the plot method provides all the projections of the set on each location. 
+Now we can run the simulation, returning an *orbit* object containing the list of points for each location, along with their simulation times:
 
-![outer-reach](/img/outer-reach-5.png "Infinite time outer evolution at accuracy 5")
-
-In the figure above we can see the reached set, which can be compared with the one obtained for finite time evolution. The most relevant difference is that discretisations occur after *each transition* and after a given continuous evolution time; after such discretisation, the current set is compared with the set on the previous discretisation in order to identify if no cells are reached. A total of 16 discretisation are performed before this condition is met, as can be seen if we set a verbosity of 2. Discretisations necessarily increase the width of the flow tube, which is apparent on the right side of the figure: this is the section where the dynamics is the slowest, hence more discretisation events occur. The "artifacts" on the top right and bottom left corners of the figure are due to discretisation error; while quite relevant at accuracy 5, it can be shown for accuracy 7 to reduce their overall impact, thus shrinking to zero for infinite accuracy.
-
-![outer-reach-7](/img/outer-reach-7.png "Infinite time outer evolution at accuracy 7")
-
-Both discretised outer reach sets seem quite coarse in respect to the finite time evolution set. While this is the case for flow tubes with very small diameter, for large tubes the opposite holds: just look at the extreme value for $x$ for finite time: even if only one cycle has been performed, it is already higher than the result obtained for infinite time at accuracy 5. This is due to the fact that discretisation allows to efficiently split the set and work on smaller enclosures, which yield better bounds and consequently a tighter reached set overall. Splitting without discretisation is actually feasible, but it is less effective and more expensive from the computational viewpoint.
-Summarizing, discretisations enable manipulations of the flow tube that, while introducing over-approximations, improve the efficiency and effectiveness of the procedure for large flow tubes.
-
-The computation of the $\varepsilon$-lower approximation, along with the value of $\varepsilon$, is performed with
-
-```c++
-HybridDenotableSet reach;
-HybridFloatVector epsilon;
-make_lpair<HybridDenotableSet,HybridFloatVector>(reach,epsilon) = 
-                   analyser.epsilon_lower_chain_reach(initial_set);
+```
+auto orbit = simulator.orbit(system,initial_point,termination);
 ```
 
-Here we provide a value of $\varepsilon$ for each dimension, corresponding to the largest width of the flow tube for any trajectory of the evolution.
+If we used a verbosity equal to 1, the output would be a series of lines similar to the following:
 
-The result of $L\_{\varepsilon}$ for accuracy 5 is shown below:
-
-![epsilon-lower-reach-5](/img/epsilon-lower-reach-5.png "Infinite time epsilon lower evolution at accuracy 5")
-
-Compared with the corresponding outer evolution, we notice a significantly thinner reached set. The main reason is that the flow tube is *discretised separately*, instead of discretising and resuming from the discretised set. The motivation is that for lower semantics we cannot split the set, which would happen if we converted the set into cells. Consequently, the discretisation is "kept on the side" only to check whether the reached set passes through the same cells: if that is the case, we terminate the infinite-time evolution. As a result, the quality of the flow is roughly the same as that obtained using finite-time evolution with the same step size, plus the over-approximation error of projection onto a grid. 
-
-As already discussed earlier, there are intrinsic advantages in the use of discretisation. First, we can provide a termination condition which is not rigorous but whose accuracy increasing with the accuracy setting. Second, we can perform pruning of the trajectories, as shown in the bottom part of the figure, where the subset of the trajectories introduces a "hole" in the flow tube. The tradeoff here is between computational efficiency and quality of results; keeping in mind that $L\_{\varepsilon}$ allows to work with any subset of $Re$, holes are perfectly acceptable if we need to analyse only the extreme values of the set. The motivation for the upper part of the figure not having a hole is that the flow tubes are larger, i.e., there is more over-approximation error as already shown in the finite time case. The result is that the trajectories partially overlap.
-
-## 3.2 - Verification
-
-Verification in Ariadne currently builds on top of infinite time evolution: the purpose is to analyse the reachable set of the system, rather than focus on a specific time window. Still, it is possible to use the methods described below to address finite time evolution: it suffices to compose the original system with an automaton featuring a single clock $T\_1$ and an invariant $T\_1 \leq T\_{\max}$, where $T\_{\max}$ is the desired time horizon. In this way, the new system is unable to progress after the time limit for the clock is reached.
-
-Reachability analysis can be easily used to perform *safety* verification: given a safe set, check whether the reachable set of a system is within it (positive answer) or without it (negative answer). Let us explain this concept using the following figure:
-
-![safety-as-sets](/img/safety-as-sets.png "Safety verification expressed in terms of sets")
-
-Here we have the same reachable set $Re$, with two different safe sets $S\_1$ and $S\_2$. 
-
-On the left, we want to prove that $Re$ is safe in respect to $S\_1$: to do that, we want to check if the outer approximation $O$ is such that $O \in S\_1$; if that is the case, then also $Re \in S\_1$ holds. 
-
-On the right, we want to prove that $Re$ is unsafe in respect to $S\_2$: to do that, we want to check if a point of the $\varepsilon$-lower approximation $L\_{\varepsilon}$ is at least $\varepsilon$ away from $S\_2$; if that is the case, then $Re$ is not inside $S\_2$.
-
-Our verification routines can also be made *parametric*, where we identify one or more parameters of the system (i.e., `RealParameter` objects that appear in the system model) and provide intervals for their value. Then, we split those intervals and analyze the system for each of the boxes given by the splitting. In this way we have some information on the effect of varying these "design" parameters and possibly identify optimal values in respect to the verification objective.
-
-Let us now introduce the specification required by Ariadne to verify a system. Since safety verification relies on infinite time evolution, we first require a bounding domain as explained in the previous subsection. Secondarily, it is necessary to provide the safe set. In Ariadne such set is expressed as a `ConstraintSet` $f^{-1}\left\(C\right\)$, i.e., the pre-image of a box $C$ in respect to a vector function $f$. More in general, we can provide a `HybridConstraintSet` to supply different constraints for different locations. For this tutorial we want to describe a very simple safe set, hence we have defined a custom `getSafetyConstraint` function with the following body:
-
-```c++
-RealVariable a("a"), x("x");
-List<RealVariable> varlist;
-varlist.append(a);
-varlist.append(x);
-RealExpression expr = x;
-List<RealExpression> consexpr;
-consexpr.append(expr);
-VectorFunction cons_f(consexpr,varlist);
-Box codomain(1,5.25,8.25);
-
-return HybridConstraintSet(system.state_space(),
-                           ConstraintSet(cons_f,codomain));
+```
+t=23.149999 #e=2 p=[5.782] l=(controller|falling,valve|closed) e=[can_close,stop_closing] 
 ```
 
-In practice, we build the list of variables in order to construct a vector function $f$ equal to $x$ (meaning the identity function on $x$), with a unidimensional $C = \[5.25, 8.25\]$ codomain. This is equivalent to say that the safe set $f^{-1}\left( C \right)$ is $\[5.25, 8.25\]$ itself. Finally, we extend the constraint set to the hybrid state space of the system.
+in which we display the current time, the number of events triggered, the point in the differential variables only, the location and the trace of the events in order of triggering.
 
-In order to perform verification, it is necessary to create a `Verifier` object:
+Finally, we can plot the orbit on different projections:
 
-```c++
-Verifier verifier;
+```
+plot("simulation_t-height",Axes2d(0<=TimeVariable()<=30,5<=height<=9),orbit);
+ plot("simulation_t-aperture",Axes2d(0<=TimeVariable()<=30,-0.1<=aperture<=1.1),orbit);
+ plot("simulation_height-aperture",Axes2d(5<=height<=9,-0.1<=aperture<=1.1),orbit);
 ```
 
-Differently from an evolver or an analyser, a verifier does not take the system as input. This is because in general we can verify more than one system, e.g., two systems for *dominance checking* routines (not covered in this tutorial). Instead, we provide a specific input object to the method, in the case of safety a `SafetyVerificationInput`:
+Consequently, we need to supply a file name, an `Axes2d` object that specifies the range of the variables (with the special `TimeVariable()` variable if we want to refer to time) and the set to be plotted. Each file will be a png figure with the trajectory constructed by joining the points.
 
-```c++
-SafetyVerificationInput verInput(system, initial_set, domain, 
-                                 safety_constraint);
+![simulation](/img/simulation.png "Finite time simulation")
+
+The figure above shows the trajectory, starting from the top and moving clockwise: the height increases until the condition for closing the valve is triggered. The value closes gradually, hence the height still increases slightly before decreasing. When the aperture is zero, the height continues dropping until the condition for opening the valve is triggered. Again, since the opening is gradual, the height drops a bit before increasing again. At a fully opened valve, the height continues increasing until hitting the time limit of 30 seconds according to the termination criterion.
+
+## 3.2 - Finite time rigorous evolution
+
+The first step is the creation of a `GeneralHybridEvolver` object, which provides methods for finite time evolution. Since this is slightly more complicated than a simulator, we wrapped it into a `create_evolver` function for this tutorial.
+
+First, we create the evolver from the system:
+
 ```
-in which we collect all the inputs common to safety verification methods.
-
-As the evolver and analyser, a verifier can be provided with a `verbosity` value that, if sufficiently high, exposes the analyser and ultimately the evolver log output.
-
-In terms of settings, the `VerifierSettings` of [verifier.h](https://github.com/ariadne-cps/release-1.0/tree/mastertree/master/include/verifier.h) contains the following:
-
-  - `plot_results`: whether to plot reachability results at the analyser level; useful to check the actual reachable sets used for verification; defaults to false;
-  - `enable_backward_refinement_for_safety_proving`: allows to refine results by also calculating reachability in the backwards direction, from the safe set to the initial set, in order to exclude points that can not reach the safe set; however, while introducing a relevant computational overhead, the effectiveness of the approach highly depends on the system model; as such, the setting defaults to false;
-  - `maximum_parameter_depth`: a non-negative number, represents the number of splittings per parameter, for parametric verification; for example, 10 equals $2^{10} = 1024$ different subintervals for each parameter;
-  - `use_param_midpoints_for_proving`: allows to prove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, but not formally rigorous: in order to say that the box is safe, all of its points must be safe; consequently, the library defaults this setting to false;
-  - `use_param_midpoints_for_disproving`: allows to disprove only the midpoint of the split parameter box instead of using the intervals for each parameter; reachability calculation in this case is significantly easier, and compared to the proving case the result is still correct: a single point in the box being unsafe makes the whole box unsafe; consequently, the library defaults this setting to true;
-
-Finally, a verifier has a `ttl` (i.e., "time to live") value: the allowed time (in seconds) for a single verification attempt. This means that for parametric verification, the `ttl` value is enforced for each split box. For this tutorial, we choose:
-
-```c++
-verifier.ttl = 140;
+GeneralHybridEvolver evolver(system);
 ```
 
-### 3.2.1 - Safety verification
+then we configure the evolver:
 
-In order to perform safety verification, it is sufficient to issue:
-
-```c++
-verifier.safety(verInput);
+```
+evolver.configuration().set_maximum_enclosure_radius(3.0);
+ evolver.configuration().set_maximum_step_size(0.25);
+ evolver.verbosity=log_verbosity;
 ```
 
-where the output of the method is a `tribool`, i.e., a three-valued logic type. This means that an `indeterminate` value is also possible, along with a `true` or `false` results. The reason is the following: the method starts by trying to verify the system with accuracy 0 and, if unsuccessful, it retries with accuracy 1, meaning that the discretisation cells are halved for each dimension. It continues to increase the accuracy until a `true` or `false` result is obtained or until the `ttl` deadline is hit, in that case returning `indeterminate`. In order to see detailed information on the verification procedure, a verbosity level of 2 or higher is recommended.
+Here the most important setting is called a *maximum* step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally reduces the provided value until the value is acceptable. However, if the step size is reasonably small with respect to the dynamics, it is usually the case that a bounding box is identified with no halving.
 
-### 3.2.2 - Parametric safety verification
+Another relevant setting is the maximum enclosure radius, used to decide if an enclosure is too large: if this is the case, then the evolution stops prematurely. Finally, we assign the verbosity as usual.
 
-For the parametric case, we first need to introduce the parameters:
+By printing the configuration with 
 
-```c++
-RealParameterSet parameters;
-parameters.insert(RealParameter("hmin",Interval(5.0,6.0)));
-parameters.insert(RealParameter("hmax",Interval(7.5,8.5)));
+```
+std::cout << evolver.configuration() << std::endl;
 ```
 
-Here the parameters must necessarily be present in the system to verify. The existing values for the parameters will be replaced by the values obtained from the splitting of the `RealParameterSet`.
+we see other settings which we will not comment here but that are documented in the source code.
 
-For this tutorial, we want to set
+As soon as the evolver is set up, we can perform finite-time evolution by computing the orbit of the automaton in a way quite similar to the simulator. The notable differences here are two-fold:
 
-```c++
-verifier.settings().maximum_parameter_depth = 3;
+  1. The initial set accepts intervals for variables;
+  2. The semantics (i.e., upper/lower) must be specified.
+
+Let's show how to achieve the former:
+
 ```
-meaning that we will have a splitting of the parameters space into a 8x8 grid.
-
-Now verification is performed with:
-
-```c++
-list<ParametricOutcome> results = verifier.parametric_safety(
-                                             verInput, parameters);
+HybridSet initial_set({valve|opened,controller|rising},{6.9_decimal<=height<=7});
 ```
-where each `ParametricOutcome` contains the values of the parameters along with the `tribool` verification outcome. If we use a verbosity of 1, we can see how the 8x8 = 64 parameter splits are progressively processed:
 
-```c++
-[v:1]  Split parameters set #1/64: values {{hmax@Real(8.125,8.25)},{hmin@Real(5.25,5.375)}}
+The initial *set* is a `HybridSet` instead of a `HybridRealPoint` and it accepts interval values. If a singleton value is preferred, the syntax `{height==7}` needs to be used instead (note that we used `{height=7}` for a point). 
+
+For the semantics, it does directly in the evolution call:
+
 ```
-while a verbosity of 2 shows the accuracy required for each set.
+auto orbit = evolver.orbit(initial_set,termination,Semantics::UPPER);
+```    
 
-Finally, we can actually plot the list of outcomes using the following:
+Ariadne uses two semantics: *upper* and *lower*.  Such difference essentially amounts to deciding whether a transition should be taken in the presence of approximations. Since Ariadne operates on over-approximated sets, if such a set partially crosses a guard, then it is not always decidable whether the exact set either completely crosses, partially crosses or does not cross at all. If that is the case, we want to provide two semantics of evolution: allow or disallow a spurious transition. In the first case of upper semantics we end up with an approximate reachable set which is a (possibly) unbounded over-approximation of the exact reachable set; in the second case of lower semantics instead we have a bounded over-approximation, where the bound is essentially the diameter of the flow tube. However, under lower semantics we may terminate evolution earlier, hence the over-approximation may be of a subset of the reachable set. In addition, lower semantics disallows subdivisions of a set, since in that case one of the two splits may not contain any point of the exact reachable set; if such split set then diverges in respect to the other split set, the bound on the over-approximation increases in an uncontrolled way.
 
-```c++
-plotter.plot(results,verifier.settings().maximum_parameter_depth);
+If we used verbosity 1, we would see a series of log outputs such as:
+
 ```
-which returns a figure for each couple of parameters.
+#w=2   #r=1332 #f=44  #e=2   #p=2  #c=2 t=[23.034064,23.250000] dwt=[14.250000,14.250000] c=[5.772] r=0.044247515 te=0.      se=0.0000173 l=(controller|falling,valve|closed) e=[can_close,stop_closing]
+```
 
-![parametric-safety](/img/parametric-safety.png "Parametric safety verification results")
+There are several extra fields here compared to the simulator; let's introduce the most important ones. First, `#w` represents the number of working sets, i.e., trajectories currently being processed. Since there is nondeterminism due to the permissive transitions, this produces a bundle of trajectories which need to be processed separately. Also, since we are dealing with sets rather than points, the time itself is an interval, here under the `t` field, and the set itself is summarised by a center `c` and a radius `r`. The number of reachable sets currently processed is given by `#r` instead.
 
-Since the parameters are ordered alphabetically, `hmax` is on the x-axis and `hmin` is on the y-axis. As intuition suggests, the system is safe (green) for low values of $h\_{\max}$ and high values of $h\_{\min}$ and unsafe (red) otherwise. The indeterminate (yellow) boxes are the result of an insufficient accuracy in respect to the chosen `ttl`. If we used a higher `maximum_parameter_depth`, then the yellow bands would grow thinner, yielding larger regions where a true or false value is identified.
+Finally, plotting the orbit is exactly the same as in the case of simulation, where only the file names are changed.
+
+![finite_evolution](/img/finite_evolution.png "Finite time evolution")
+
+Comparing the figure above with the corresponding one from the simulator we see how the evolver is able to consider the permissive transitions associated with the `start_closing` and `start_opening` events. The bundle of trajectories contracts into one line after the valve is fully closed or opened, though it must be specified that all the overlapping reachable sets still need to be computed and plotted. 
+
+## 3.3 - Infinite time rigorous evolution
+
+In this subsection we show the result of performing *outer chain* rigorous evolution. The output of this routine is the set of points reached by the system if evolved for infinite time. In order to achieve this in a finite execution time, we rely on a *reachability analyser*, which differs from an evolver for the use of a grid, which is a partitioning of the state space such that difference/subtraction operations can be performed effectively. Reachable sets in the analyser are periodically overapproximated ("discretised") onto cells in the grid, forming a *grid paving*.
+
+As with the evolver, we provided a function in the tutorial dedicated to the construction of the evolver. An analyser requires an underlying evolver. Before that, however, we silence the evolver in order to get log entries from the analyser only:
+
+```
+evolver.verbosity=0;
+```
+
+followed by
+
+```
+HybridReachabilityAnalyser analyser(evolver);
+```
+
+After the instantiation we can configure the analyser:
+
+```
+analyser.configuration().set_maximum_grid_depth(6);
+ analyser.configuration().set_lock_to_grid_time(5);
+ analyser.verbosity=log_verbosity;
+```
+
+in which the most important setting is the *maximum grid depth*, a (small) integer that determines the number of times that we can subdivide a given base cell of the grid; the higher the value, the more accurate the discretisation, but also the larger the number of cells and consequently the more computationally demanding the evolution. The *lock to grid time* instead determines the period (in seconds) between discretisations onto the grid. A small value allows to promptly identify the end of infinite time evolution, but it also causes more frequent overapproximations.
+
+As with the evolver, we can print the configuration:
+
+```
+std::cout << analyser.configuration() << std::endl;
+```
+    
+Here there are some extra accuracy settings, including the ability to provide a bounding domain that enforces termination if reached. The motivation is that the infinite time reachable set may be unlimited, either intrinsically to the system or numerically due to large overapproximations that prevent convergence. The bounding domain allows to avoid the explosion of the number of cells reached, which would ultimately deplete the available memory.
+
+In order to run the outer chain reachability routine, we set up the same initial set as for the evolver, while the semantics is implicitly the upper one, since we must guarantee to return all reachable points:
+
+```
+auto outer_chain_reach = analyser.outer_chain_reach(initial_set);
+```
+
+If we used a verbosity of 1 we would see a series of log lines such as this:
+
+```
+stage=6   #starting=48   #reached=3417 #evolved=446 ................................................
+```
+
+in which the `stage` represents the number of discretisation occurred, `#starting` is the number of starting cells to evolve, `#reached` the number of accumulated cells reached and `#evolved` the number of accumulated starting cells. The dots represent a progress indicator of the starting cells being processed.
+
+Plotting again follows the same syntax as for the previous evolutions:
+
+```
+plot("outer_chain_reach",Axes2d(5<=height<=9,-0.1<=aperture<=1.1),outer_chain_reach);
+```
+
+but we must note that for grid sets timing information is discarded, therefore we can't plot versus time.
+
+![infinite_evolution](/img/infinite_evolution.png "Infinite time evolution")
+
+In the figure above the grid set overapproximation is apparent, in particular we note that the section of the trajectory where the valve is opened/closed is made of two cells. This is due to the alignment of the grid, which can be configured, though in general is difficult to choose a priori in an effective way. We also note how adjacent cells can be joined into larger cells. As the maximum grid depth increases, the edges of the reachable set become less jagged and the radius generally improves. The lock to grid time if increased also improves the average radius on one run. However, for infinite time reachability, the automaton may need to perform several "rounds" of the  hysteretic cycle. The settings values that allow convergence in a finite and small number of rounds are not trivial to find and require some trial and error.
+
+## 4 - What's next
+
+This tutorial is meant to be as compact as possible, by giving a glimpse of the capabilities of the library. We suggest to play a bit with the configuration settings, in order to see the impact on the plotted results. Then it will also be interesting to increase the initial set, which would make evolution more demanding. Meanwhile, using verbosity values higher than 1 may yield some insight on the inner workings of the library.
