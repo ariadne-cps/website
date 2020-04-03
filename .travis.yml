@@ -12,18 +12,17 @@ branches:
 
 before_install:
 - brew install hugo doxygen
-- npm install -g winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist --save-dev
-- git clone https://github.com/sourcey/moxygen
-- git clone https://github.com/ariadne-cps/development ariadne
+- npm install winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist
+#- git clone https://github.com/sourcey/moxygen
+#- git clone https://github.com/ariadne-cps/ariadne ariadne
 
 script:
-- export NODE_PATH=/usr/local/lib/node_modules
-- cd ariadne
-- mkdir build; cd build
-- cmake ..
+#- cd ariadne
+#- mkdir build; cd build
+#- cmake ..
 # - make doc
-- cd ../..
-- mkdir api-docs
+#- cd ../..
+#- mkdir api-docs
 # - moxygen/bin/moxygen.js --anchors --groups --classes --output=api-docs/%s.md ariadne/docs/xml 
 - hugo
 
