@@ -16,7 +16,7 @@ The following papers are provided in descending order of publication and represe
 *Bresolin, D.; Collins, P.; Geretti, L.; Segala, R.; Villa, T.; Zivanovic, S.*  
 23rd ACM International Conference on Hybrid Systems: Computation and Control (HSCC ’20), April 22-24, 2020, Sydney, Australia, DOI: `10.1145/ 3365365.3382202`
 
-[<i class="fa fa-file-pdf-o"></i>](/pdf/zivanovic-jsc2020.pdf)
+[<i class="fa fa-file-pdf-o"></i>](/pdf/zivanovic-jsc2020.pdf)   
 **Higher Order Method for Differential Inclusions**  
 *Zivanovic, S.; Collins, P.; Geretti, L.; Bresolin, D.; Villa, T.*  
 Journal of Scientific Computing (submitted), 2020, pre-print [https://arxiv.org/abs/2001.11330] (https://arxiv.org/abs/2001.11330)
