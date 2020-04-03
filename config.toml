@@ -13,12 +13,18 @@ copyright = "Luca Geretti"
   logo = "img/ariadne.png"
   favicon = "img/ariadne.ico"
   rss = true
+  mainSections = ["post","posts"]
 
 [markup]
   defaultMarkdownHandler = "goldmark"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+
+[[menu.main]]
+    name = "About"
+    url = "about"
+    weight = 1
 
 [[menu.main]]
     name = "Publications"
@@ -29,11 +35,6 @@ copyright = "Luca Geretti"
     name = "Installation"
     url = "installation"
     weight = 3
-
-[[menu.main]]
-    name = "About"
-    url = "about"
-    weight = 1
 
 [[menu.main]]
     name = "Tutorial"
