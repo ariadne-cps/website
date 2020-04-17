@@ -299,10 +299,10 @@ where the value should be positive; the verbosity defaults to zero if no flag is
 We compose the system with
 
 ```
-CompositeHybridAutomaton watertank_system({get_tank(),get_valve(),get_controller()});
+CompositeHybridAutomaton watertank_system("watertank",{get_tank(),get_valve(),get_controller()});
 ```
 
-in which within the list we call the automaton construction functions to return the automata objects.
+in which within the list we call the automaton construction functions to return the automata objects. The first argument is optional and supplies a custom name to the resulting system.
 
 The system can be printed directly on the standard output, but before that we change the default writer class into one that gives a compact representation:
 
