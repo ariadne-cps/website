@@ -4,6 +4,8 @@ date: 2017-10-11T19:11:44+02:00
 draft: false
 ---
 
+<link rel="stylesheet" href="/css/tabs.css" />
+<script defer type="text/javascript" src="/js/tabs.js"></script>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
@@ -83,9 +85,11 @@ For clarity of presentation, each component is wrapped into its own function tha
 
 The automaton can be constructed by starting with the following instruction:
 
-```
-HybridAutomaton tank("tank");
-```
+{{% tabs %}}{{% tab "C++" %}}```
+HybridAutomaton automaton("tank");
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton=HybridAutomaton("tank")
+```{{% /tab %}}{{% /tabs %}}
 
 where the argument string is optional but useful for logging purposes. This is already a legit automaton, while still empty.
 
