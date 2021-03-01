@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+    - master
+    - actions
+  pull_request:
+
+env:
+  FTP_USER: ${{ secrets.FTP_USER }}
+  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+jobs:
+  build:
+    runs-on: macos-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        brew install hugo
+        npm install -g winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist --save-dev
+        npm install winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist
+    
+    - name: Build
+      run: hugo
+
+    - name: Upload
+      run: gulp deploy --user $FTP_USER --password $FTP_PASSWORD
+        
