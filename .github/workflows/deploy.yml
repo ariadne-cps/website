@@ -25,7 +25,9 @@ jobs:
         npm install gulp vinyl-ftp gulp-util minimist
     
     - name: Build
-      run: hugo
+      run: |
+        git submodule update --init --recursive
+        hugo
 
     - name: Upload
       run: gulp deploy --user $FTP_USER --password $FTP_PASSWORD
