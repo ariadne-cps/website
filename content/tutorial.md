@@ -4,6 +4,8 @@ date: 2017-10-11T19:11:44+02:00
 draft: false
 ---
 
+<link href="{{ "css/tabs.css" | absURL }}" rel="stylesheet" type="text/css">
+<script src="{{ "js/tabs.js" | absURL }}"></script>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
@@ -82,6 +84,21 @@ For clarity of presentation, each component is wrapped into its own function tha
 ## 2.1 - Tank
 
 The automaton can be constructed by starting with the following instruction:
+
+<div class="tabs">
+  <div class="tab">
+    <a class="tab-button" href="#">C++</a>
+    <div class="tab-content">
+      <p>`HybridAutomaton automaton("tank");`</p>
+    </div>
+  </div>
+  <div class="tab">
+    <a class="tab-button" href="#">Python</a>
+    <div class="tab-content">
+      <p>`automaton=HybridAutomaton("tank")`</p>
+    </div>
+  </div>
+</div>
 
 ```
 HybridAutomaton tank("tank");
