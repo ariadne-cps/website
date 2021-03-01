@@ -21,8 +21,8 @@ jobs:
     - name: Install Dependencies
       run: |
         brew install hugo
-        npm install -g winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist --save-dev
-        npm install winston commander object-assign xml2js handlebars gulp vinyl-ftp gulp-util minimist
+        npm install -g gulp vinyl-ftp gulp-util --save-dev
+        npm install gulp vinyl-ftp gulp-util
     
     - name: Build
       run: hugo
