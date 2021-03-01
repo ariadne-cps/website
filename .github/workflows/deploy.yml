@@ -21,8 +21,8 @@ jobs:
     - name: Install Dependencies
       run: |
         brew install hugo
-        npm install -g gulp vinyl-ftp gulp-util --save-dev
-        npm install gulp vinyl-ftp gulp-util
+        npm install -g gulp vinyl-ftp gulp-util minimist --save-dev
+        npm install gulp vinyl-ftp gulp-util minimist
     
     - name: Build
       run: hugo
