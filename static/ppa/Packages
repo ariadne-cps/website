@@ -2,13 +2,13 @@ Package: ariadne
 Version: 2.1
 Architecture: amd64
 Maintainer: Luca Geretti
-Installed-Size: 52751
+Installed-Size: 43748
 Depends: libcairo2-dev, libmpfr-dev, python3-dev
 Filename: ./ariadne_2.1_amd64.deb
-Size: 11725904
-MD5sum: 86bd7264299e393e14aa8ac63c86965c
-SHA1: 64daa345eb2aadec050e52da3364523f79a76257
-SHA256: 27a76dd0ec21218d50b39efc645432331f77fe017c6a0a75e1548662302e9e8c
+Size: 10076384
+MD5sum: 8cab14667d0dae94e658c23820b532d3
+SHA1: 09a7e95e433c5cc718d2d6f978347641fc423017
+SHA256: aaeaf126fa637663673616678a758e7d4a88db1fd5e29249131d341e99cc401b
 Section: devel
 Priority: optional
 Description: Ariadne built using CMake
