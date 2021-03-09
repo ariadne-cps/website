@@ -22,7 +22,7 @@ The tutorial is split into three sections:
   2. [Construction of a model](#2---system-model-construction) for the system;
   3. [Evolution of the model](#3---system-model-evolution), in terms of simulation and finite/infinite time evolution.
 
-Ariadne currently uses a programmatic C++ approach to describe a model and analyse it. The full code presented in the following is available [here](https://github.com/ariadne-cps/ariadne/tree/master/tutorials/hybrid_evolution) as a simple self contained example with extensive comments. After following this tutorial, we encourage to play around with the example in order to better understand the behavior of the modeled system.
+The full code presented in the following is available in C++ as a simple self contained CMake [project](https://github.com/ariadne-cps/ariadne/tree/master/tutorials/hybrid_evolution), or in Python as a script [file](https://github.com/ariadne-cps/ariadne/tree/master/python/tutorials/hybrid_evolution_tutorial.py). The tutorial files are extensively commented. Here on this page instead code snippets are provided for both languages. After following this tutorial, we encourage to play around with the example in order to better understand the behavior of the modeled system.
 
 # 1 - The system
 
@@ -95,86 +95,121 @@ where the argument string is optional but useful for logging purposes. This is a
 
 Let us fill it with some behavior. First, we want to define the variables used:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 RealVariable aperture("aperture");
  RealVariable height("height");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+aperture = RealVariable("aperture")
+ height = RealVariable("height")
+```{{% /tab %}}{{% /tabs %}}
 
 Now we introduce a location variable:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 DiscreteLocation flow;
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+flow = DiscreteLocation()
+```{{% /tab %}}{{% /tabs %}}
 
 Normally a location would have a string label, but as long as an automaton has only one location such label can be empty.
 
 Before defining the dynamics for the location, let us introduce some named constants for practical purposes:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 RealConstant alpha("alpha",0.02_decimal);
  RealConstant beta("beta",0.3_decimal);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+alpha = RealConstant("alpha",dec(0.02))
+ beta = RealConstant("beta",dec(0.3))
+```{{% /tab %}}{{% /tabs %}}
 
 Here we notice how Ariadne requires to specify the type for non-integer literals: a floating point number is simply not accepted since in general it would be rounded to a value that depends on the architecture. It is not necessary to use named constants, since literals are accepted as well.
 
 Then, we add the location along with its dynamics with
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_mode(flow,{dot(height)=beta*aperture-alpha*height});
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_mode(flow,[dot(height)<<beta*aperture-alpha*height])
+```{{% /tab %}}{{% /tabs %}}
 
 where any nonlinear combination of variables, constants and literals is accepted.
 
 ## 2.2 - Valve
 
 First, we introduce a string variable that will hold the automaton name:
-```
+
+{{% tabs %}}{{% tab "C++" %}}```
 StringVariable valve("valve");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+valve = StringVariable("valve")
+```{{% /tab %}}{{% /tabs %}}
 
 Then we initialise the valve automaton with
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 HybridAutomaton automaton(valve.name());
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton = HybridAutomaton(valve.name())
+```{{% /tab %}}{{% /tabs %}}
+
 The motivation for this approach is that we can reuse the string variable to provide sensible labels to the four locations:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 DiscreteLocation opening(valve|"opening");
  DiscreteLocation closed(valve|"closed");
  DiscreteLocation opened(valve|"opened");
  DiscreteLocation closing(valve|"closing");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+opening = DiscreteLocation({valve:"opening"})
+ closed = DiscreteLocation({valve:"closed"})
+ opened = DiscreteLocation({valve:"opened"})
+ closing = DiscreteLocation({valve:"closing"})
+```{{% /tab %}}{{% /tabs %}}
+
 This choice allows to prefix a location name, improving readability. The automaton name is independent and can take on any string value, including being empty.
 
 Before adding the corresponding dynamics, we declare constants and variables:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 RealConstant T("T",4);
-
  RealVariable aperture("aperture");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+T = RealConstant("T",4)
+ aperture = RealVariable("aperture")
+```{{% /tab %}}{{% /tabs %}}
 
 where we notice that constants with integer values can use builtin integers.
 
 Now we can define each *mode*, i.e. a location for the automaton to which we can attach algebraic/differential dynamics:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_mode(opened,{let(aperture)=1});
  automaton.new_mode(closed,{let(aperture)=0});
  automaton.new_mode(opening,{dot(aperture)=+1/T});
  automaton.new_mode(closing,{dot(aperture)=-1/T});
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_mode(opened,[let(aperture)<<1])
+ automaton.new_mode(closed,[let(aperture)<<0])
+ automaton.new_mode(opening,[dot(aperture)<<+1/T])
+ automaton.new_mode(closing,[dot(aperture)<<-1/T])
+```{{% /tab %}}{{% /tabs %}}
+
 For differential equations we use *dot* of the variable, while for algebraic equations we use *let*. The curled parentheses are required since these are lists, in which the equations are separated with commas. In the case of a mix of algebraic and differential equations, each must be defined in its own list; the order of the two lists in `new_mode` is irrelevant.
 
 Before moving to transitions, let's declare the events. Note that both invariants and guards must be associated to an event.
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 DiscreteEvent stop_opening("stop_opening");
  DiscreteEvent stop_closing("stop_closing");
  DiscreteEvent can_open("can_open");
  DiscreteEvent can_close("can_close");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+stop_opening = DiscreteEvent("stop_opening")
+ stop_closing = DiscreteEvent("stop_closing")
+ can_open = DiscreteEvent("can_open")
+ can_close = DiscreteEvent("can_close")
+```{{% /tab %}}{{% /tabs %}}
 
 Now it is possible to define transitions with the following argument format: source location, event, target location, reset map, guard predicate, event kind. 
 
@@ -182,73 +217,101 @@ The event kind is an extra specification required to properly instruct the libra
 
 The only fields that are always present in the mode definition are the source/target location and the event label. The reset map must be omitted for a variable controlled by the automaton if the variable equation in the target location is algebraic (since it is already defined). Note that in all the other cases a reset must always be defined, even if it's the identity: this is due to the fact that in general more than one automaton may control the variable (each one on separate locations), therefore we can't assume to default to the identity map for a given automaton. The guard and event kind need to be omitted instead if the event is an input event, since those are defined in another automaton.
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_transition(closed,can_open,opening,{next(aperture)=aperture});
  automaton.new_transition(opening,stop_opening,opened,aperture>=1,EventKind::URGENT);
  automaton.new_transition(opened,can_close,closing,{next(aperture)=aperture});
  automaton.new_transition(closing,stop_closing,closed,aperture<=0,EventKind::URGENT);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_transition(closed,can_open,opening,[next(aperture)<<aperture])
+ automaton.new_transition(opening,stop_opening,opened,aperture>=1,URGENT)
+ automaton.new_transition(opened,can_close,closing,[next(aperture)<<aperture])
+ automaton.new_transition(closing,stop_closing,closed,aperture<=0,URGENT)
+```{{% /tab %}}{{% /tabs %}}
 
 ## 2.3 - Controller
 
 The construction of the controller for the system involves the usual constants and variable declarations:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 RealConstant hmin("hmin",5.75_decimal);
  RealConstant hmax("hmax",7.75_decimal);
  RealConstant delta("delta",0.02_decimal);
-
  RealVariable height("height");
- 
  StringVariable controller("controller");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+hmin = RealConstant("hmin",dec(5.75))
+ hmax = RealConstant("hmax",dec(7.75))
+ delta = RealConstant("delta",dec(0.02))
+ height = RealVariable("height")
+ controller = StringVariable("controller")
+```{{% /tab %}}{{% /tabs %}}
 
 and the automaton construction:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 HybridAutomaton automaton(controller.name());
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton = HybridAutomaton(controller.name())
+```{{% /tab %}}{{% /tabs %}}
 
 after which we can introduce the events: 
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 DiscreteEvent can_open("can_open");
  DiscreteEvent can_close("can_close");
  DiscreteEvent must_open("must_open");
  DiscreteEvent must_close("must_close");
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+can_open = DiscreteEvent("can_open")
+ can_close = DiscreteEvent("can_close")
+ must_open = DiscreteEvent("must_open")
+ must_close = DiscreteEvent("must_close")
+```{{% /tab %}}{{% /tabs %}}
 
 In opposition to the tank automaton, the controller "reads" the height variable; similarly, it "writes" the *can_open* and *can_close* events. The *must_open* and *must_close* events will be associated to invariants in order to define the $2\delta$ range of nondeterminism when starting the opening/closing of the valve.
 
 The two locations are defined in the usual way:
 
-```
-DiscreteLocation rising("rising");
-DiscreteLocation falling("falling");
-```
+{{% tabs %}}{{% tab "C++" %}}```
+DiscreteLocation rising(controller|"rising");
+ DiscreteLocation falling(controller|"falling");
+```{{% /tab %}}{{% tab "Python" %}}```
+rising = DiscreteLocation({controller:"rising"})
+ falling = DiscreteLocation({controller:"falling"})
+```{{% /tab %}}{{% /tabs %}}
 
 and the modes are created without dynamics, since the controller has none:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_mode(rising);
  automaton.new_mode(falling);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_mode(rising)
+ automaton.new_mode(falling)
+```{{% /tab %}}{{% /tabs %}}
 
 Then we associate invariants to modes with:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_invariant(falling,height>=hmin-delta,must_open);
  automaton.new_invariant(rising,height<=hmax+delta,must_close);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_invariant(falling,height>=hmin-delta,must_open)
+ automaton.new_invariant(rising,height<=hmax+delta,must_close)
+```{{% /tab %}}{{% /tabs %}}
 
 where we see that we need to provide the location, the predicate and an event.
 
 Moving to transitions, we have the following:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 automaton.new_transition(falling,can_open,rising,height<=hmin+delta,EventKind::PERMISSIVE);
  automaton.new_transition(rising,can_close,falling,height>=hmax-delta,EventKind::PERMISSIVE);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+automaton.new_transition(falling,can_open,rising,height<=hmin+delta,PERMISSIVE)
+ automaton.new_transition(rising,can_close,falling,height>=hmax-delta,PERMISSIVE)
+```{{% /tab %}}{{% /tabs %}}
 
 that are specified as permissive and no reset is involved since the automaton controls no variable. After composition, these transitions will supply the guard and event kind for the same event in the transitions of the valve automaton.
 
@@ -260,9 +323,11 @@ The Ariadne library currently supports only *horizontal* composition, meaning th
 
 In order to create the composed automaton, it is as simple as this:
 
-```
-CompositeHybridAutomaton watertank_system({get_tank(),get_valve(),get_controller()});
-```
+{{% tabs %}}{{% tab "C++" %}}```
+CompositeHybridAutomaton watertank_system("watertank",{get_tank(),get_valve(),get_controller()});
+```{{% /tab %}}{{% tab "Python" %}}```
+watertank_system = CompositeHybridAutomaton("watertank",[get_tank(),get_valve(),get_controller()])
+```{{% /tab %}}{{% /tabs %}}
 
 which creates an object that complies to the same interface as a hybrid automaton but internally holds the list of the components.
 
@@ -273,17 +338,19 @@ For efficiency purposes, actual composition is made dynamically during evolution
 
 # 3 - System model evolution
 
-In this section we provide information on how to analyse a system, in terms of [finite time simulation](#31---finite-time-simulation), [finite time rigorous evolution](#32---finite-time-rigorous-evolution) and [infinite time rigorous evolution](#33---infinite-time-rigorous-evolution).
+In this section we provide information on how to analyse a system, in terms of [finite time simulation](#31---finite-time-simulation), [finite time rigorous evolution](#32---finite-time-rigorous-evolution), [finite time rigorous evolution using a grid](#33---finite-time-rigorous-evolution-using-a-grid) and [infinite time rigorous evolution](#34---infinite-time-rigorous-evolution).
 
-The first step is the preparation of an executable. Let us examine the tutorial [file](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp) from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption:
+The first step is the preparation of a C++/Python executable. Let us examine the tutorial [file](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp) from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption (C++) or to import the pyariadne module (Python):
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 #include <ariadne.h>
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+from pyariadne import *
+```{{% /tab %}}{{% /tabs %}}
 
 The content of the `main` function of the executable revolves around these steps:
 
-  1. Collect verbosity for runtime info;
+  1. (C++) Collect verbosity for runtime info;
   2. Compose the system to analyse;
   3. Print the system;
   4. Simulate the system;
@@ -292,28 +359,13 @@ The content of the `main` function of the executable revolves around these steps
   7. Construct a reachability analyser;
   8. Compute reachability.
 
-Verbosity is obtain from the command line by running the executable with a `-v <value>` flag, e.g.:
+Verbosity in C++ is obtained from the command line by running the executable with a `-v <value>` flag, e.g.:
 
 ```
-> tutorials/hybrid_evolution_tutorial -v 1
+> tutorials/hybrid_evolution_tutorial -v 2
 ```
 
 where the value should be positive; the verbosity defaults to zero if no flag is supplied.
-
-We compose the system with
-
-```
-CompositeHybridAutomaton watertank_system("watertank",{get_tank(),get_valve(),get_controller()});
-```
-
-in which within the list we call the automaton construction functions to return the automata objects. The first argument is optional and supplies a custom name to the resulting system.
-
-The system can be printed directly on the standard output, but before that we change the default writer class into one that gives a compact representation:
-
-```
-CompositeHybridAutomaton::set_default_writer(new CompactCompositeHybridAutomatonWriter());
- std::cout << "System: " << watertank_system << std::endl;
-```
 
 In the following we detail the implementation for the three evolutions. For a better understanding of the required code, each evolution routine in the tutorial file contains all the necessary variables and calls. However, the code will be commented below only once, hence we suggest to follow the tutorial in order.
 
@@ -325,37 +377,45 @@ The integrator used to evolve the system in the continuous space relies on the c
 
 First, we instantiate the simulator:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 HybridSimulator simulator;
  simulator.set_step_size(0.01);
- simulator.verbosity = log_verbosity;
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+simulator = HybridSimulator()
+ simulator.set_step_size(0.01)
+```{{% /tab %}}{{% /tabs %}}
 
-which can only take a step size. For numerical settings in general we accept double-precision values, since an undefined rounding of these values does not affect the correctness of the result (while the value of a constant affects the behavior of a system instead). Also, verbosity is assigned to the simulator. That's all for the configuration of a simulator object, which is very simple.
+which can only take a step size. For numerical settings in general we accept double-precision values, since an undefined rounding of these values does not affect the correctness of the result (while the value of a constant affects the behavior of a system instead). That's all for the configuration of a simulator object, which is very simple.
 
 Then we define the initial point for simulation:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 HybridRealPoint initial_point({valve|opened,controller|rising},{height=7});
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+initial_point = HybridRealPoint(DiscreteLocation({valve:opened,controller:rising}),{height:Real(7)})
+```{{% /tab %}}{{% /tabs %}}
 
 in which we assume, similarly to automaton definition, that the variables and string constants required have been declared earlier in the function. Here we see that we define the location for a composite system by creating a list of location names, where the order is irrelevant. This location is paired with a real point, which is given by another list of values for each differential variable (therefore the aperture is not supplied, since it is algebraic in the given location).
 
 Along with the initial point, we must define the termination criterion:
 
-```
-HybridTerminationCriterion termination(30,5);
-```
+{{% tabs %}}{{% tab "C++" %}}```
+HybridTerminationCriterion termination(30.0_x,5);
+```{{% /tab %}}{{% tab "Python" %}}```
+termination = HybridTerminationCriterion(Real(exact(30.0)),5)
+```{{% /tab %}}{{% /tabs %}}
 
 A hybrid termination criterion can involve three criteria: a maximum continuous time, a maximum discrete time (i.e., number of transitions), and a set of discrete events. The semantics is such that as soon as one criterion is hit, evolution stops. In particular, for the discrete events, evolution stops as soon as a transition associated with one of the provided events is triggered. In our specific case we want to enforce termination after either 30 seconds or 5 transitions.
 
 Now we can run the simulation, returning an *orbit* object containing the list of points for each location, along with their simulation times:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 auto orbit = simulator.orbit(system,initial_point,termination);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+orbit = simulator.orbit(system,initial_point,termination)
+```{{% /tab %}}{{% /tabs %}}
 
-If we used a verbosity equal to 1, the output would be a series of lines similar to the following:
+If we used a sufficiently high verbosity in C++, the output would be a series of lines similar to the following:
 
 ```
 t=23.149999 #e=2 p=[5.782] l=(controller|falling,valve|closed) e=[can_close,stop_closing] 
@@ -365,11 +425,15 @@ in which we display the current time, the number of events triggered, the point 
 
 Finally, we can plot the orbit on different projections:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 plot("simulation_t-height",Axes2d(0<=TimeVariable()<=30,5<=height<=9),orbit);
  plot("simulation_t-aperture",Axes2d(0<=TimeVariable()<=30,-0.1<=aperture<=1.1),orbit);
  plot("simulation_height-aperture",Axes2d(5<=height<=9,-0.1<=aperture<=1.1),orbit);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+plot("simulation_t-height",Axes2d(0,TimeVariable(),30,5,height,9),orbit)
+ plot("simulation_t-aperture",Axes2d(0,TimeVariable(),30, -0.1,aperture,1.1),orbit)
+ plot("simulation_height-aperture",Axes2d(5,height,9, -0.1,aperture,1.1),orbit)
+```{{% /tab %}}{{% /tabs %}}
 
 Consequently, we need to supply a file name, an `Axes2d` object that specifies the range of the variables (with the special `TimeVariable()` variable if we want to refer to time) and the set to be plotted. Each file will be a png figure with the trajectory constructed by joining the points.
 
@@ -383,27 +447,33 @@ The first step is the creation of a `GeneralHybridEvolver` object, which provide
 
 First, we create the evolver from the system:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 GeneralHybridEvolver evolver(system);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+evolver = GeneralHybridEvolver(system)
+```{{% /tab %}}{{% /tabs %}}
 
 then we configure the evolver:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 evolver.configuration().set_maximum_enclosure_radius(3.0);
  evolver.configuration().set_maximum_step_size(0.25);
- evolver.verbosity=log_verbosity;
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+evolver.configuration().set_maximum_enclosure_radius(3.0)
+ evolver.configuration().set_maximum_step_size(0.25)
+```{{% /tab %}}{{% /tabs %}}
 
 Here the most important setting is called a *maximum* step size since in general the integration step must be small enough to allow the identification of a bounding box for the flow set. If the provided value does not guarantee such condition, the library internally reduces the provided value until the value is acceptable. However, if the step size is reasonably small with respect to the dynamics, it is usually the case that a bounding box is identified with no halving.
 
-Another relevant setting is the maximum enclosure radius, used to decide if an enclosure is too large: if this is the case, then the evolution stops prematurely. Finally, we assign the verbosity as usual.
+Another relevant setting is the maximum enclosure radius, used to decide if an enclosure is too large: if this is the case, then the evolution stops prematurely.
 
 By printing the configuration with 
 
-```
-std::cout << evolver.configuration() << std::endl;
-```
+{{% tabs %}}{{% tab "C++" %}}```
+ARIADNE_LOG_PRINTLN("Evolver configuration: " << evolver.configuration());
+```{{% /tab %}}{{% tab "Python" %}}```
+print("Evolver configuration:",evolver.configuration())
+```{{% /tab %}}{{% /tabs %}}
 
 we see other settings which we will not comment here but that are documented in the source code.
 
@@ -414,21 +484,25 @@ As soon as the evolver is set up, we can perform finite-time evolution by comput
 
 Let's show how to achieve the former:
 
-```
-HybridSet initial_set({valve|opened,controller|rising},{6.9_decimal<=height<=7});
-```
+{{% tabs %}}{{% tab "C++" %}}```
+HybridBoundedConstraintSet initial_set({valve|opened,controller|rising},{6.9_decimal<=height<=7});
+```{{% /tab %}}{{% tab "Python" %}}```
+initial_set = HybridBoundedConstraintSet({valve:opened,controller:rising},[(dec(6.9)<=height)<=7])
+```{{% /tab %}}{{% /tabs %}}
 
-The initial *set* is a `HybridSet` instead of a `HybridRealPoint` and it accepts interval values. If a singleton value is preferred, the syntax `{height==7}` needs to be used instead (note that we used `{height=7}` for a point). 
+The initial *set* is a `HybridBoundedConstraintSet` instead of a `HybridRealPoint` and it accepts interval values. If a singleton value is preferred, the syntax `{height==7}` needs to be used instead (note that we used `{height=7}` for a point). 
 
-For the semantics, it does directly in the evolution call:
+Semantics goes directly in the evolution call:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
 auto orbit = evolver.orbit(initial_set,termination,Semantics::UPPER);
-```    
+```{{% /tab %}}{{% tab "Python" %}}```
+orbit = evolver.orbit(initial_set,termination,Semantics.UPPER)
+```{{% /tab %}}{{% /tabs %}}
 
 Ariadne uses two semantics: *upper* and *lower*.  Such difference essentially amounts to deciding whether a transition should be taken in the presence of approximations. Since Ariadne operates on over-approximated sets, if such a set partially crosses a guard, then it is not always decidable whether the exact set either completely crosses, partially crosses or does not cross at all. If that is the case, we want to provide two semantics of evolution: allow or disallow a spurious transition. In the first case of upper semantics we end up with an approximate reachable set which is a (possibly) unbounded over-approximation of the exact reachable set; in the second case of lower semantics instead we have a bounded over-approximation, where the bound is essentially the diameter of the flow tube. However, under lower semantics we may terminate evolution earlier, hence the over-approximation may be of a subset of the reachable set. In addition, lower semantics disallows subdivisions of a set, since in that case one of the two splits may not contain any point of the exact reachable set; if such split set then diverges in respect to the other split set, the bound on the over-approximation increases in an uncontrolled way.
 
-If we used verbosity 1, we would see a series of log outputs such as:
+If we used a sufficiently high verbosity, we would see a series of log outputs such as:
 
 ```
 #w=2   #r=1332 #f=44  #e=2   #p=2  #c=2 t=[23.034064,23.250000] dwt=[14.250000,14.250000] c=[5.772] r=0.044247515 te=0.      se=0.0000173 l=(controller|falling,valve|closed) e=[can_close,stop_closing]
@@ -442,66 +516,99 @@ Finally, plotting the orbit is exactly the same as in the case of simulation, wh
 
 Comparing the figure above with the corresponding one from the simulator we see how the evolver is able to consider the permissive transitions associated with the `start_closing` and `start_opening` events. The bundle of trajectories contracts into one line after the valve is fully closed or opened, though it must be specified that all the overlapping reachable sets still need to be computed and plotted. 
 
-## 3.3 - Infinite time rigorous evolution
+## 3.3 - Finite time rigorous evolution using a grid
 
-In this subsection we show the result of performing *outer chain* rigorous evolution. The output of this routine is the set of points reached by the system if evolved for infinite time. In order to achieve this in a finite execution time, we rely on a *reachability analyser*, which differs from an evolver for the use of a grid, which is a partitioning of the state space such that difference/subtraction operations can be performed effectively. Reachable sets in the analyser are periodically overapproximated ("discretised") onto cells in the grid, forming a *grid paving*.
+In this subsection we show the result of performing *upper reach* rigorous evolution. The output of this routine is the set of points reached by the system if evolved for finite time, while relying on periodic discretisations of the reached set. To do this we rely on a *reachability analyser*, which differs from an evolver for the use of a grid. A grid is a partitioning of the state space such that difference/subtraction operations can be performed effectively. Reachable sets in the analyser are therefore periodically discretised by overapproximation onto cells in the grid, forming a *grid paving*.
 
-As with the evolver, we provided a function in the tutorial dedicated to the construction of the evolver. An analyser requires an underlying evolver. Before that, however, we silence the evolver in order to get log entries from the analyser only:
+Using discretisations we are able to perform more scalable evolution in the presence of multiple trajectories coming from non-determinism or, in general, large evolution sets: we can arbitrarily split those sets, while the paving prevents an inefficient superposition of trajectories.
 
-```
-evolver.verbosity=0;
-```
+As with the evolver, we provided a function in the tutorial dedicated to the construction of the evolver. An analyser requires an underlying evolver:
 
-followed by
-
-```
+{{% tabs %}}{{% tab "C++" %}}```
 HybridReachabilityAnalyser analyser(evolver);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+analyser = HybridReachabilityAnalyser(evolver)
+```{{% /tab %}}{{% /tabs %}}
 
 After the instantiation we can configure the analyser:
 
-```
-analyser.configuration().set_maximum_grid_depth(6);
+{{% tabs %}}{{% tab "C++" %}}```
+analyser.configuration().set_maximum_grid_fineness(6);
  analyser.configuration().set_lock_to_grid_time(5);
- analyser.verbosity=log_verbosity;
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+analyser.configuration().set_maximum_grid_fineness(6)
+ analyser.configuration().set_lock_to_grid_time(5)
+```{{% /tab %}}{{% /tabs %}}
 
 in which the most important setting is the *maximum grid depth*, a (small) integer that determines the number of times that we can subdivide a given base cell of the grid; the higher the value, the more accurate the discretisation, but also the larger the number of cells and consequently the more computationally demanding the evolution. The *lock to grid time* instead determines the period (in seconds) between discretisations onto the grid. A small value allows to promptly identify the end of infinite time evolution, but it also causes more frequent overapproximations.
 
 As with the evolver, we can print the configuration:
 
-```
-std::cout << analyser.configuration() << std::endl;
-```
-    
-Here there are some extra accuracy settings, including the ability to provide a bounding domain that enforces termination if reached. The motivation is that the infinite time reachable set may be unlimited, either intrinsically to the system or numerically due to large overapproximations that prevent convergence. The bounding domain allows to avoid the explosion of the number of cells reached, which would ultimately deplete the available memory.
+{{% tabs %}}{{% tab "C++" %}}```
+ARIADNE_LOG_PRINTLN("Analyser configuration: " << analyser.configuration());
+```{{% /tab %}}{{% tab "Python" %}}```
+print("Analyser configuration:",analyser.configuration())
+```{{% /tab %}}{{% /tabs %}}
 
-In order to run the outer chain reachability routine, we set up the same initial set as for the evolver, while the semantics is implicitly the upper one, since we must guarantee to return all reachable points:
+The final time is now defined as a hybrid time, but with the same arguments as before:
 
-```
-auto outer_chain_reach = analyser.outer_chain_reach(initial_set);
-```
+{{% tabs %}}{{% tab "C++" %}}```
+HybridTime final_time(30.0_x,5);
+```{{% /tab %}}{{% tab "Python" %}}```
+final_time = HybridTime(Real(exact(30.0)),5)
+```{{% /tab %}}{{% /tabs %}}
+ 
+In order to run the upper reachability routine, we set up the same initial set as for the evolver, implicitly using upper semantics:
 
-If we used a verbosity of 1 we would see a series of log lines such as this:
-
-```
-stage=6   #starting=48   #reached=3417 #evolved=446 ................................................
-```
-
-in which the `stage` represents the number of discretisation occurred, `#starting` is the number of starting cells to evolve, `#reached` the number of accumulated cells reached and `#evolved` the number of accumulated starting cells. The dots represent a progress indicator of the starting cells being processed.
+{{% tabs %}}{{% tab "C++" %}}```
+auto upper_reach = analyser.upper_reach(initial_set,final_time);
+```{{% /tab %}}{{% tab "Python" %}}```
+upper_reach = analyser.upper_reach(initial_set,final_time)
+```{{% /tab %}}{{% /tabs %}}
 
 Plotting again follows the same syntax as for the previous evolutions:
 
-```
+{{% tabs %}}{{% tab "C++" %}}```
+plot("upper_reach",Axes2d(5<=height<=9,-0.1<=aperture<=1.1),upper_reach);
+```{{% /tab %}}{{% tab "Python" %}}```
+plot("upper_reach",Axes2d(5,height,9,-0.1,aperture,1.1),upper_reach)
+```{{% /tab %}}{{% /tabs %}}
+
+but we must note that for grid sets timing information is discarded, therefore we can't plot versus time. 
+
+![upper_reach](/img/upper_reach.png "Upper reach finite time evolution")
+
+In the figure above we see the corresponding finite time evolution when using a grid. Since the grid is tuned for each location, we notice that the cells have different sizes in different regions. 
+In particular we note that the section of the trajectory where the valve is opened/closed is made of two cells. This is due to the alignment of the grid, which can be configured, though in general is difficult to choose a priori in an effective way. We also note how adjacent cells can be joined into larger cells. As the maximum grid depth increases, the edges of the reachable set become less jagged and the radius generally improves. 
+
+Finally, it is apparent that evolution stops earlier, as soon as the fifth location is hit. This is a result of the loss of timing information due to the use of grid sets.
+
+## 3.4 - Infinite time rigorous evolution
+
+In this subsection we show the result of performing *outer chain reach* rigorous evolution. The output of this routine is the set of points reached by the system if evolved for infinite time. In order to achieve this in a finite execution time, we again rely on a reachability analyser, in order to allow the required difference/subtraction operations in an efficient and effective way.
+   
+Compared to the upper reach case, an important additional configuration setting is the bounding domain that enforces termination if reached. The motivation is that the infinite time reachable set may be unlimited, either intrinsically to the system or numerically due to large overapproximations that prevent convergence. The bounding domain allows to avoid the explosion of the number of cells reached, which would ultimately deplete the available memory.
+
+In order to run the outer chain reachability routine, we set up the same initial set as for the evolver, while the semantics is implicitly the upper one, since we must guarantee to return all reachable points:
+
+{{% tabs %}}{{% tab "C++" %}}```
+auto outer_chain_reach = analyser.outer_chain_reach(initial_set);
+```{{% /tab %}}{{% tab "Python" %}}```
+outer_chain_reach = analyser.outer_chain_reach(initial_set)
+```{{% /tab %}}{{% /tabs %}}
+
+Plotting again follows the same syntax as for the previous evolutions:
+
+{{% tabs %}}{{% tab "C++" %}}```
 plot("outer_chain_reach",Axes2d(5<=height<=9,-0.1<=aperture<=1.1),outer_chain_reach);
-```
+```{{% /tab %}}{{% tab "Python" %}}```
+plot("outer_chain_reach",Axes2d(5,height,9,-0.1,aperture,1.1),outer_chain_reach)
+```{{% /tab %}}{{% /tabs %}}
 
-but we must note that for grid sets timing information is discarded, therefore we can't plot versus time.
+![outer_reach](/img/outer_reach.png "Outer reach infinite time evolution")
 
-![infinite_evolution](/img/infinite_evolution.png "Infinite time evolution")
-
-In the figure above the grid set overapproximation is apparent, in particular we note that the section of the trajectory where the valve is opened/closed is made of two cells. This is due to the alignment of the grid, which can be configured, though in general is difficult to choose a priori in an effective way. We also note how adjacent cells can be joined into larger cells. As the maximum grid depth increases, the edges of the reachable set become less jagged and the radius generally improves. The lock to grid time if increased also improves the average radius on one run. However, for infinite time reachability, the automaton may need to perform several "rounds" of the  hysteretic cycle. The settings values that allow convergence in a finite and small number of rounds are not trivial to find and require some trial and error.
+In the figure above we see the outer chain reachable set. Compared with upper reach, first we see that the whole evolution is performed. For infinite time reachability, the automaton usually needs to perform several "rounds" of the hysteretic cycle. This introduces extra cells, apparent in the left side of the figure. If the lock to grid time if increased, the average radius on one run is improved, but this does not guarantee an overall smaller number of cells and a faster convergence. The settings values that allow convergence in a finite and small number of rounds are not trivial to find and require some trial and error.
 
 ## 4 - What's next
 
-This tutorial is meant to be as compact as possible, by giving a glimpse of the capabilities of the library. We suggest to play a bit with the configuration settings, in order to see the impact on the plotted results. Then it will also be interesting to increase the initial set, which would make evolution more demanding. Meanwhile, using verbosity values higher than 1 may yield some insight on the inner workings of the library.
+This tutorial is meant to be as compact as possible, by giving a glimpse of the capabilities of the library. We suggest to play a bit with the configuration settings, in order to see the impact on the plotted results. Then it will also be interesting to increase the initial set, which would make evolution more demanding. Meanwhile, using verbosity values higher than 2 may yield some insight on the inner workings of the library.
