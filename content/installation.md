@@ -76,7 +76,7 @@ To build the library from sources in a clean way, it is preferable that you set 
 
 ```
 $ mkdir build
-$ cd build
+ $ cd build
 ```
 
 Then you can prepare the build environment, choosing a Release build for maximum performance:
@@ -101,7 +101,7 @@ Optionally, you can also build and run the test suite for the library:
 
 ```
 $ cmake --build . --target tests --parallel
-$ ctest
+ $ ctest
 ```
 
 where no error should appear.
