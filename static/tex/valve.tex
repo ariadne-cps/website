@@ -40,11 +40,15 @@
    };
     \path[-{>[scale=2.5, width=3]},line width=0.4pt]
      (opened) edge[bend left=50] 
-       node[anchor=north,above]{\fontfamily{pcr}\selectfont \small can\_close} (closing)                  
+       node[anchor=north,above]{\fontfamily{pcr}\selectfont \small can\_close} (closing)      
+     (opening) edge[bend left=20] 
+       node[anchor=north,above,rotate=40]{\fontfamily{pcr}\selectfont \small can\_close} (closing)                       
      (closing) edge[bend left=50]  
        node[anchor=west]{$a \leq 0$} (closed)
      (closed) edge[bend left=50] 
        node[anchor=south,below]{\fontfamily{pcr}\selectfont \small can\_open} (opening)       
+     (closing) edge[bend left=20] 
+       node[anchor=south,below,rotate=40]{\fontfamily{pcr}\selectfont \small can\_open} (opening)       
      (opening) edge[bend left=50]  
        node[anchor=east]{$a \geq 1$} (opened)            
      ;
