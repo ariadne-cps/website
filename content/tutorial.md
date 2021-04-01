@@ -118,8 +118,8 @@ Normally a location would have a string label, but as long as an automaton has o
 Before defining the dynamics for the location, let us introduce some named constants for practical purposes:
 
 {{% tabs %}}{{% tab "C++" %}}```
-RealConstant alpha("alpha",0.02_decimal);
- RealConstant beta("beta",0.3_decimal);
+RealConstant alpha("alpha",0.02_dec);
+ RealConstant beta("beta",0.3_dec);
 ```{{% /tab %}}{{% tab "Python" %}}```
 alpha = RealConstant("alpha",dec(0.02))
  beta = RealConstant("beta",dec(0.3))
@@ -236,9 +236,9 @@ automaton.new_transition(closed,can_open,opening,[next(aperture)<<aperture])
 The construction of the controller for the system involves the usual constants and variable declarations:
 
 {{% tabs %}}{{% tab "C++" %}}```
-RealConstant hmin("hmin",5.75_decimal);
- RealConstant hmax("hmax",7.75_decimal);
- RealConstant delta("delta",0.02_decimal);
+RealConstant hmin("hmin",5.75_dec);
+ RealConstant hmax("hmax",7.75_dec);
+ RealConstant delta("delta",0.02_dec);
  RealVariable height("height");
  StringVariable controller("controller");
 ```{{% /tab %}}{{% tab "Python" %}}```
@@ -487,7 +487,7 @@ As soon as the evolver is set up, we can perform finite-time evolution by comput
 Let's show how to achieve the former:
 
 {{% tabs %}}{{% tab "C++" %}}```
-HybridBoundedConstraintSet initial_set({valve|opened,controller|rising},{6.9_decimal<=height<=7});
+HybridBoundedConstraintSet initial_set({valve|opened,controller|rising},{6.9_dec<=height<=7});
 ```{{% /tab %}}{{% tab "Python" %}}```
 initial_set = HybridBoundedConstraintSet({valve:opened,controller:rising},[(dec(6.9)<=height)<=7])
 ```{{% /tab %}}{{% /tabs %}}
