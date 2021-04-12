@@ -326,9 +326,9 @@ The Ariadne library currently supports only *horizontal* composition, meaning th
 In order to create the composed automaton, it is as simple as this:
 
 {{% tabs %}}{{% tab "C++" %}}```
-CompositeHybridAutomaton watertank_system("watertank",{get_tank(),get_valve(),get_controller()});
+CompositeHybridAutomaton system("watertank",{get_tank(),get_valve(),get_controller()});
 ```{{% /tab %}}{{% tab "Python" %}}```
-watertank_system = CompositeHybridAutomaton("watertank",[get_tank(),get_valve(),get_controller()])
+system = CompositeHybridAutomaton("watertank",[get_tank(),get_valve(),get_controller()])
 ```{{% /tab %}}{{% /tabs %}}
 
 which creates an object that complies to the same interface as a hybrid automaton but internally holds the list of the components.
