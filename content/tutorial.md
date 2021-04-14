@@ -555,9 +555,9 @@ print("Analyser configuration:",analyser.configuration())
 The final time is now defined as a hybrid time, but with the same arguments as before:
 
 {{% tabs %}}{{% tab "C++" %}}```
-HybridTime final_time(30.0_x,5);
+HybridTime final_time(30.0_dec,5);
 ```{{% /tab %}}{{% tab "Python" %}}```
-final_time = HybridTime(Real(exact(30.0)),5)
+final_time = HybridTime(dec(30.0),5)
 ```{{% /tab %}}{{% /tabs %}}
  
 In order to run the upper reachability routine, we set up the same initial set as for the evolver, implicitly using upper semantics:
