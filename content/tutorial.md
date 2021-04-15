@@ -88,12 +88,12 @@ For clarity of presentation, each component is wrapped into its own function tha
 The automaton can be constructed by starting with the following instruction:
 
 {{% tabs %}}{{% tab "C++" %}}```
-HybridAutomaton automaton("tank");
+HybridAutomaton automaton;
 ```{{% /tab %}}{{% tab "Python" %}}```
-automaton=HybridAutomaton("tank")
+automaton=HybridAutomaton()
 ```{{% /tab %}}{{% /tabs %}}
 
-where the argument string is optional but useful for logging purposes. This is already a legit automaton, while still empty.
+This is already a legit automaton, while still empty.
 
 Let us fill it with some behavior. First, we want to define the variables used:
 
@@ -104,16 +104,6 @@ RealVariable aperture("aperture");
 aperture = RealVariable("aperture")
  height = RealVariable("height")
 ```{{% /tab %}}{{% /tabs %}}
-
-Now we introduce a location variable:
-
-{{% tabs %}}{{% tab "C++" %}}```
-DiscreteLocation flow;
-```{{% /tab %}}{{% tab "Python" %}}```
-flow = DiscreteLocation()
-```{{% /tab %}}{{% /tabs %}}
-
-Normally a location would have a string label, but as long as an automaton has only one location such label can be empty.
 
 Before defining the dynamics for the location, let us introduce some named constants for practical purposes:
 
@@ -127,15 +117,17 @@ alpha = RealConstant("alpha",dec(0.02))
 
 Here we notice how Ariadne requires to specify the type for non-integer literals: a floating point number is simply not accepted since in general it would be rounded to a value that depends on the architecture. It is not necessary to use named constants, since literals are accepted as well.
 
-Then, we add the location along with its dynamics with
+Then, we add the dynamics with
 
 {{% tabs %}}{{% tab "C++" %}}```
-automaton.new_mode(flow,{dot(height)=beta*aperture-alpha*height});
+automaton.new_mode({dot(height)=beta*aperture-alpha*height});
 ```{{% /tab %}}{{% tab "Python" %}}```
-automaton.new_mode(flow,[dot(height)<<beta*aperture-alpha*height])
+automaton.new_mode([dot(height)<<beta*aperture-alpha*height])
 ```{{% /tab %}}{{% /tabs %}}
 
 where any nonlinear combination of variables, constants and literals is accepted.
+
+Notice that in this automaton we did not specify the location: while a single location can be introduced, a simplified syntax can be used.
 
 ## 2.2 - Valve
 
@@ -169,7 +161,7 @@ opening = DiscreteLocation({valve:"opening"})
  closing = DiscreteLocation({valve:"closing"})
 ```{{% /tab %}}{{% /tabs %}}
 
-This choice allows to prefix a location name, improving readability. The automaton name is independent and can take on any string value, including being empty.
+This choice allows to prefix a location name, improving readability. No particular syntax for the location names is necessary. The automaton name is actually independent from the location name prefix and can take on any string value, including being empty as in the case of the tank.
 
 Before adding the corresponding dynamics, we declare constants and variables:
 
@@ -197,7 +189,7 @@ automaton.new_mode(opened,[let(aperture)<<1])
  automaton.new_mode(closing,[dot(aperture)<<-1/T])
 ```{{% /tab %}}{{% /tabs %}}
 
-For differential equations we use *dot* of the variable, while for algebraic equations we use *let*. The curled parentheses are required since these are lists, in which the equations are separated with commas. In the case of a mix of algebraic and differential equations, each must be defined in its own list; the order of the two lists in `new_mode` is irrelevant.
+For differential equations we use *dot* of the variable, while for algebraic equations we use *let*. The curled parentheses are required since these are lists, in which the equations are separated with commas. In the case of a mix of algebraic and differential equations, each must be defined in its own list; the order of the two lists in `new_mode` is irrelevant. Finally, modes must be named with the location when multiple locations are present.
 
 Before moving to transitions, let's declare the events. Note that both invariants and guards must be associated to an event.
 
