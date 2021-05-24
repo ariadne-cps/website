@@ -334,7 +334,7 @@ For efficiency purposes, actual composition is made dynamically during evolution
 
 In this section we provide information on how to analyse a system, in terms of [finite time simulation](#31---finite-time-simulation), [finite time rigorous evolution](#32---finite-time-rigorous-evolution), [finite time rigorous evolution using a grid](#33---finite-time-rigorous-evolution-using-a-grid) and [infinite time rigorous evolution](#34---infinite-time-rigorous-evolution).
 
-The first step is the preparation of a C++/Python executable. Let us examine the tutorial [file](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp) from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption (C++) or to import the pyariadne module (Python):
+The first step is the preparation of a C++/Python executable. Let us examine the [C++](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp)/[Python](https://github.com/ariadne-cps/ariadne/blob/master/python/tutorials/hybrid_evolution_tutorial.py)  files from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption (C++) or to import the pyariadne module (Python):
 
 {{% tabs %}}{{% tab "C++" %}}```
 #include <ariadne.h>
@@ -342,9 +342,9 @@ The first step is the preparation of a C++/Python executable. Let us examine the
 from pyariadne import *
 ```{{% /tab %}}{{% /tabs %}}
 
-The content of the `main` function of the executable revolves around these steps:
+The content of the `main` function revolves around these steps:
 
-  1. (C++) Collect verbosity for runtime info;
+  1. Collect command-line input;
   2. Compose the system to analyse;
   3. Print the system;
   4. Simulate the system;
@@ -353,13 +353,16 @@ The content of the `main` function of the executable revolves around these steps
   7. Construct a reachability analyser;
   8. Compute reachability.
 
-Verbosity in C++ is obtained from the command line by running the executable with a `-v <value>` flag, e.g.:
+Command-line input can be supplied to the tutorial file using several arguments. If running the file with the `-h` argument you obtain a list of the arguments supported, where the default values are shown. The code to add acquisition of command line interface arguments is
 
-```
-> tutorials/hybrid_evolution_tutorial -v 2
-```
+{{% tabs %}}{{% tab "C++" %}}```
+if (not CommandLineInterface::instance().acquire(argc,argv)) return -1;
+```{{% /tab %}}{{% tab "Python" %}}```
+from sys import argv
+ if not CommandLineInterface.instance().acquire(argv): exit()
+```{{% /tab %}}{{% /tabs %}}
 
-where the value should be positive; the verbosity defaults to zero if no flag is supplied.
+You might be particularly interested in increasing the value of the verbosity, to obtain more information along evolution. If you need colored syntax highlighting for logging, choose a theme.
 
 In the following we detail the implementation for the three evolutions. For a better understanding of the required code, each evolution routine in the tutorial file contains all the necessary variables and calls. However, the code will be commented below only once, hence we suggest to follow the tutorial in order.
 
