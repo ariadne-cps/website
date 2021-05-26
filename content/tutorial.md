@@ -337,7 +337,7 @@ In this section we provide information on how to analyse a system, in terms of [
 The first step is the preparation of a C++/Python executable. Let us examine the [C++](https://github.com/ariadne-cps/ariadne/blob/master/tutorials/hybrid_evolution/hybrid_evolution_tutorial.cpp)/[Python](https://github.com/ariadne-cps/ariadne/blob/master/python/tutorials/hybrid_evolution_tutorial.py)  files from the top. To work with the Ariadne library it is necessary to start by including the top header for user consumption (C++) or to import the pyariadne module (Python):
 
 {{% tabs %}}{{% tab "C++" %}}```
-#include <ariadne.h>
+#include <ariadne.hpp>
 ```{{% /tab %}}{{% tab "Python" %}}```
 from pyariadne import *
 ```{{% /tab %}}{{% /tabs %}}
