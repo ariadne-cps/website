@@ -62,7 +62,7 @@ Additional packages required for documentation: `doxygen doxygen-latex`
 
 Homebrew packages: `cmake git mpfr cairo gnuplot` and `gcc@10` if using GCC.
 
-For Cairo support, you may need to set up a permanent variable for the path of pkgconfig by adding the following line in your `~\.bash_profile`:
+For Cairo support, you may need to set up a permanent variable for the path of pkgconfig by adding the following line in your `~/.bash_profile`:
 
 ```
 export PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig
