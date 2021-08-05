@@ -48,7 +48,7 @@ Finally, if you want to build the documentation, you need Doxygen and a working 
 
 Please note that adding new dependencies after preparing the build environment requires to re-run the CMake command.
 
-Specific instructions for Ubuntu and macOS follow, starting from installation from pre-compiled packages.
+Specific instructions for Ubuntu and macOS follow.
 
 #### Ubuntu
 
