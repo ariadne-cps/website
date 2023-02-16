@@ -8,7 +8,7 @@ draft: false
 
 The command-line installation instructions are presented for Debian Linux systems and derivatives (using apt) and macOS systems (using Homebrew). However, openSUSE and Fedora are known to be working when using their own package managers. Windows installations are not supported yet.
 
-Official packages are available for Ubuntu LTS (currently 20.04) and derivatives and macOS 11, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation using gcc (minimum required: 10.2) and clang (minimum required: 11.0). AppleClang currently does not support C++20 Concepts yet and therefore is not usable on macOS at the moment.
+Official packages are available for Ubuntu LTS (currently 20.04) and derivatives and macOS 11, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation using gcc (minimum required: 10.2) and clang (minimum required: 11.0).
 
 ### Official packages
 
@@ -42,7 +42,7 @@ which in one line both sets up the "tap" for Ariadne and installs the package al
 
 ### Dependencies for installation from sources
 
-If installed from sources, the only required library dependency is MPFR. To enable the graphical output you will require either Cairo or Gnuplot in order to save into png files. Finally, the Python bindings require the Python headers (version 3 is only supported, since version 2 is discontinued). In particular for Python, there is an internal Git submodule dependency on the header-only [pybind11](https://github.com/pybind/pybind11) library. Therefore in order to build the Python interface, Git must be installed even if Ariadne has been downloaded as an archive. Download of the dependency is automatic though.
+If installed from sources, the only required library dependency is MPFR. To enable the graphical output you will require either Cairo or Gnuplot in order to save into png files. Finally, the Python bindings require the Python headers (version 3 is only supported, since version 2 is discontinued). In particular for Python, there is an internal Git submodule dependency on the header-only [pybind11](https://github.com/pybind/pybind11) library. In order to build all the submodules of the library, Git must be installed even if Ariadne has been downloaded as an archive. Download of the dependencies is automatic though.
 
 Finally, if you want to build the documentation, you need Doxygen and a working Latex distribution (including the Math packages).
 
