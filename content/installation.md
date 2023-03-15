@@ -129,11 +129,19 @@ $ cmake --build . --target install
 
 using `sudo` if you require administrator privileges for a Linux installation. Please note that the installation will build the whole distribution beforehand, hence it is preferable that you first build the other targets without administrator privileges, build the install target.
 
-To find the installed library under Ubuntu, you may need to set the LD\_LIBRARY\_PATH in the .bashrc file of your home directory:
+To find the installed library under Ubuntu, assuming you use the Bash interpreter you may need to set the library path variable:
 
 ```
 export LD_LIBRARY_PATH=/usr/local/lib
 ```
+
+while for macOS:
+
+```
+export DYLD_LIBRARY_PATH=/usr/local/lib
+```
+
+which can be stored in the .bashrc (Ubuntu) or .bash_profile (macOS) files of your home directory for use in any terminal instance.
 
 ### Building executables using Ariadne
 
