@@ -8,7 +8,7 @@ draft: false
 
 The command-line installation instructions are presented for Debian Linux systems and derivatives (using apt) and macOS systems (using Homebrew). However, openSUSE and Fedora are known to be working when using their own package managers. Windows installations are not supported yet.
 
-Official packages are available for Ubuntu LTS (currently 20.04) and derivatives and macOS 11, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation using gcc (minimum required: 10.2) and clang (minimum required: 11.0).
+Official packages are available for Ubuntu LTS (currently 24.04) and derivatives and macOS 15, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation on Ubuntu using gcc (minimum required: 13) and clang (minimum required: 16), under AppleClang latest on macOS.
 
 ### Official packages
 
@@ -52,7 +52,7 @@ Specific instructions for Ubuntu and macOS follow, starting from installation fr
 
 #### Ubuntu
 
-apt packages: `cmake pkg-config git libmpfr-dev libcairo2-dev gnuplot` and either `clang-11` or `g++-10` for the compiler toolchain.
+apt packages: `cmake pkg-config git libmpfr-dev libcairo2-dev gnuplot` and either `clang-16` or `g++-12` for the compiler toolchain.
 
 Additional package required for the Python interface: `python3-dev`.
 
@@ -60,7 +60,7 @@ Additional packages required for documentation: `doxygen doxygen-latex`
 
 #### macOS
 
-Homebrew packages: `cmake git mpfr cairo gnuplot` and `gcc@10` if using GCC.
+Homebrew packages: `cmake git mpfr cairo gnuplot`.
 
 For Cairo support, you may need to set up a permanent variable for the path of pkgconfig by adding the following line in your `~\.bash_profile`:
 
@@ -146,5 +146,3 @@ which can be stored in the .bashrc (Ubuntu) or .bash_profile (macOS) files of yo
 ### Building executables using Ariadne
 
 The tutorials directory contains two CMake projects that rely on a correct installation of Ariadne, either by using a package or by building the sources. You can copy a project directory in any place on your file system and follow the instructions on the README file inside to check that your installation was successful.
-
-Due to limitations of the C++ standard library on macOS since C++11, you won't be able to build an executable with GCC if the Ariadne library has been built using Clang, and viceversa. Hence on macOS you shall use the same compiler for both Ariadne and any projects that depend on it. If Ariadne comes from the Homebrew package, then it has been built using g++ 10.
