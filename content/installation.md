@@ -8,7 +8,7 @@ draft: false
 
 The command-line installation instructions are presented for Debian Linux systems and derivatives (using apt) and macOS systems (using Homebrew). However, openSUSE and Fedora are known to be working when using their own package managers. Windows installations are not supported yet.
 
-Official packages are available for Ubuntu LTS (currently 24.04) and derivatives and macOS 15, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation on Ubuntu using gcc (minimum required: 13) and clang (minimum required: 16), under AppleClang latest on macOS.
+Official packages are available for Ubuntu LTS (currently 24.04) and derivatives and macOS 15, but if your architecture or particular setup necessarily requires compilation from sources, instructions are provided. The build system used is CMake. The library is tested for compilation on Ubuntu using gcc (minimum required: 12) and clang (minimum required: 16), under AppleClang latest on macOS.
 
 ### Official packages
 
