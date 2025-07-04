@@ -4,9 +4,9 @@
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <ul class="list-inline text-center footer-links">
           {{ range .Site.Data.beautifulhugo.social.social_icons }}
-            {{- if isset $.Site.Author .id }}
+            {{- if isset $.Site.Params.Author .id }}
               <li>
-                <a href="{{ printf .url (index $.Site.Author .id) }}" title="{{ .title }}">
+                <a href="{{ printf .url (index $.Site.Params.Author .id) }}" title="{{ .title }}">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa {{ .icon }} fa-stack-1x fa-inverse"></i>
@@ -27,9 +27,9 @@
           {{ end }}
         </ul>
         <p class="credits copyright text-muted">
-          Maintained by <a href="http://www.di.univr.it/?ent=persona&id=6462&lang=en">{{ .Site.Author.name }}</a>
+          Maintained by <a href="http://www.di.univr.it/?ent=persona&id=6462&lang=en">{{ .Site.Params.Author.name }}</a>
           &nbsp;&bull;&nbsp;
-          {{ .Site.LastChange.Format "2006" }}
+          {{ .Site.Lastmod.Format "2006" }}
 
             &nbsp;&bull;&nbsp;
             Sponsored by the <a href="http://www.di.univr.it/?lang=en">University of Verona</a>
