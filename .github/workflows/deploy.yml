@@ -8,6 +8,7 @@ on:
   pull_request:
 
 env:
+  HUGO_VERSION: 0.147.9
   FTP_USER: ${{ secrets.FTP_USER }}
   FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
@@ -20,7 +21,12 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        brew install hugo
+        mkdir -p "$HOME/bin"
+        curl -L "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_darwin-universal.tar.gz" -o /tmp/hugo.tar.gz
+        echo "e40d8a6f8a89ceaa5dd8b9c01ce413829eefc2de43c6e35539589200b19e6823  /tmp/hugo.tar.gz" | shasum -a 256 -c -
+        tar -xzf /tmp/hugo.tar.gz -C "$HOME/bin" hugo
+        echo "$HOME/bin" >> "$GITHUB_PATH"
+        "$HOME/bin/hugo" version
         npm install -g gulp vinyl-ftp gulp-util minimist --save-dev
         npm install gulp vinyl-ftp gulp-util minimist
     
