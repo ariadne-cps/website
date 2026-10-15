@@ -36,5 +36,15 @@ jobs:
         hugo
 
     - name: Upload
-      run: gulp deploy --user $FTP_USER --password $FTP_PASSWORD
+      run: |
+        for attempt in 1 2 3; do
+          if gulp deploy --user "$FTP_USER" --password "$FTP_PASSWORD"; then
+            exit 0
+          fi
+          if [ "$attempt" -eq 3 ]; then
+            exit 1
+          fi
+          echo "FTP upload failed on attempt $attempt; retrying in 10 seconds..."
+          sleep 10
+        done
         
