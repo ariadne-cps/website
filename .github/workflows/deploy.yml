@@ -18,7 +18,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -26,8 +26,8 @@ jobs:
     - name: Install Hugo
       run: |
         mkdir -p "$HOME/bin"
-        curl -L "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_darwin-universal.tar.gz" -o /tmp/hugo.tar.gz
-        echo "e40d8a6f8a89ceaa5dd8b9c01ce413829eefc2de43c6e35539589200b19e6823  /tmp/hugo.tar.gz" | shasum -a 256 -c -
+        curl -L "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz" -o /tmp/hugo.tar.gz
+        echo "cb077c25518c9263cd506baa2cec7016c41100b1ab4df1c93c110ff1718c98fc  /tmp/hugo.tar.gz" | shasum -a 256 -c -
         tar -xzf /tmp/hugo.tar.gz -C "$HOME/bin" hugo
         echo "$HOME/bin" >> "$GITHUB_PATH"
         "$HOME/bin/hugo" version

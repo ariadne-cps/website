@@ -55,7 +55,7 @@ def close_quietly(ftp):
         return
     try:
         ftp.quit()
-    except (ftplib.all_errors, OSError, EOFError):
+    except ftplib.all_errors:
         try:
             ftp.close()
         except Exception:
@@ -85,7 +85,7 @@ def main():
                     if remote_size(ftp, remote_path) == local_size:
                         print(f"SKIP {remote_path} ({local_size} bytes, already present)")
                         continue
-                except (ftplib.all_errors, OSError, EOFError, socket.timeout):
+                except ftplib.all_errors:
                     close_quietly(ftp)
                     ftp = connect()
 
@@ -107,7 +107,7 @@ def main():
                     print(f"UP   100% {remote_path}")
                     break
 
-                except (ftplib.all_errors, OSError, EOFError, socket.timeout) as exc:
+                except ftplib.all_errors as exc:
                     close_quietly(ftp)
                     ftp = None
 
