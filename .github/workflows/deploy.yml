@@ -7,6 +7,10 @@ on:
     - actions
   pull_request:
 
+concurrency:
+  group: ariadne-website-deploy
+  cancel-in-progress: true
+
 env:
   HUGO_VERSION: 0.147.9
   FTP_USER: ${{ secrets.FTP_USER }}
@@ -19,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install Dependencies
+    - name: Install Hugo
       run: |
         mkdir -p "$HOME/bin"
         curl -L "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_darwin-universal.tar.gz" -o /tmp/hugo.tar.gz
@@ -27,24 +31,13 @@ jobs:
         tar -xzf /tmp/hugo.tar.gz -C "$HOME/bin" hugo
         echo "$HOME/bin" >> "$GITHUB_PATH"
         "$HOME/bin/hugo" version
-        npm install -g gulp vinyl-ftp gulp-util minimist --save-dev
-        npm install gulp vinyl-ftp gulp-util minimist
-    
+
     - name: Build
       run: |
         git submodule update --init --recursive
         hugo
 
     - name: Upload
-      run: |
-        for attempt in 1 2 3; do
-          if gulp deploy --user "$FTP_USER" --password "$FTP_PASSWORD"; then
-            exit 0
-          fi
-          if [ "$attempt" -eq 3 ]; then
-            exit 1
-          fi
-          echo "FTP upload failed on attempt $attempt; retrying in 10 seconds..."
-          sleep 10
-        done
-        
+      if: github.event_name == 'push'
+      timeout-minutes: 10
+      run: python3 scripts/deploy.py
